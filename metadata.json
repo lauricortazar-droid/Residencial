@@ -1,0 +1,6 @@
+{
+  "name": "Senda Residencial",
+  "description": "Sistema integral de gestión clínica, administrativa, médica y operativa para centros de rehabilitación y comunidades terapéuticas.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

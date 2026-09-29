@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Center Sanctuary Cross & Healing Leaf Emblems -->
+    <!-- Medical cross element -->
+    <path
+        android:fillColor="#E0F7FA"
+        android:pathData="M50,32h8v14h14v8h-14v14h-8v-14h-14v-8h14z" />
+    <!-- Caring hands & protective shield arc -->
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="3.2"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:fillColor="#00000000"
+        android:pathData="M34,48 C32,60 40,74 54,78 C68,74 76,60 74,48" />
+    <!-- Heart / Leaf of recovery atop -->
+    <path
+        android:fillColor="#80DEEA"
+        android:pathData="M54,34 C57,28 64,28 66,32 C68,36 64,41 54,46 C44,41 40,36 42,32 C44,28 51,28 54,34 Z" />
+    <!-- Grounding foundation bar -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M44,82h20v3h-20z" />
+</vector>
