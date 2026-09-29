@@ -26,6 +26,7 @@ import androidx.compose.ui.window.Dialog
 import com.example.data.model.ExpedienteEntity
 import com.example.data.model.ResidentEntity
 import com.example.ui.components.ExpedienteFormDialog
+import com.example.ui.components.ExportExpedientesDialog
 import com.example.ui.components.SearchBarWidget
 import com.example.ui.components.SectionHeader
 import com.example.ui.theme.*
@@ -49,6 +50,7 @@ fun ExpedientesMedicosScreen(
     var selectedExpedienteForDetail by remember { mutableStateOf<ExpedienteEntity?>(null) }
     var expedienteToEdit by remember { mutableStateOf<ExpedienteEntity?>(null) }
     var showEditorDialog by remember { mutableStateOf(false) }
+    var showExportDialog by remember { mutableStateOf(false) }
 
     // Filtrado reactivo en tiempo real
     val filteredExpedientes = remember(expedientes, searchQuery, selectedStatusFilter, selectedTipoIngresoFilter) {
@@ -83,17 +85,28 @@ fun ExpedientesMedicosScreen(
 
     Scaffold(
         floatingActionButton = {
-            ExtendedFloatingActionButton(
-                onClick = {
-                    expedienteToEdit = null
-                    showEditorDialog = true
-                },
-                icon = { Icon(Icons.Default.Add, contentDescription = null) },
-                text = { Text("Nuevo Expediente", fontWeight = FontWeight.SemiBold) },
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary,
-                modifier = Modifier.testTag("add_expediente_fab")
-            )
+            Column(horizontalAlignment = Alignment.End) {
+                SmallFloatingActionButton(
+                    onClick = { showExportDialog = true },
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                    modifier = Modifier.testTag("export_expedientes_fab")
+                ) {
+                    Icon(Icons.Default.FileDownload, contentDescription = "Exportar Reporte CSV/JSON")
+                }
+                Spacer(modifier = Modifier.height(8.dp))
+                ExtendedFloatingActionButton(
+                    onClick = {
+                        expedienteToEdit = null
+                        showEditorDialog = true
+                    },
+                    icon = { Icon(Icons.Default.Add, contentDescription = null) },
+                    text = { Text("Nuevo Expediente", fontWeight = FontWeight.SemiBold) },
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                    modifier = Modifier.testTag("add_expediente_fab")
+                )
+            }
         },
         modifier = modifier.fillMaxSize()
     ) { innerPadding ->
@@ -108,7 +121,9 @@ fun ExpedientesMedicosScreen(
             // Cabecera principal
             SectionHeader(
                 title = "Expedientes Médicos y Clínicos",
-                subtitle = "Historial clínico, diagnósticos CIE/DSM y tratamiento en Room"
+                subtitle = "Historial clínico, diagnósticos CIE/DSM y tratamiento en Room",
+                actionText = "Exportar CSV/JSON",
+                onActionClick = { showExportDialog = true }
             )
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -268,6 +283,14 @@ fun ExpedientesMedicosScreen(
                 }
             }
         }
+    }
+
+    // Modal para Exportar Reporte Clínico en CSV o JSON
+    if (showExportDialog) {
+        ExportExpedientesDialog(
+            expedientes = filteredExpedientes.ifEmpty { expedientes },
+            onDismiss = { showExportDialog = false }
+        )
     }
 
     // Modal de Detalle Completo del Expediente

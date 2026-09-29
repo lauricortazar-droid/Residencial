@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#00687a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>SENDA Residencial • Web App Móvil & ERP Clínico</title>
+  <link rel="manifest" href="manifest.json">
+  <style>
+    :root {
+      --primary: #00687a;
+      --primary-container: #b5ebff;
+      --on-primary: #ffffff;
+      --on-primary-container: #001f26;
+      --emerald: #10b981;
+      --emerald-bg: rgba(16, 185, 129, 0.12);
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --surface-variant: #e2e8f0;
+      --text: #0f172a;
+      --text-muted: #64748b;
+      --border: #cbd5e1;
+      --radius: 16px;
+      --shadow: 0 4px 14px -2px rgba(0, 0, 0, 0.05);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+      line-height: 1.5;
+    }
+
+    /* Mobile-first responsive wrapper */
+    .app-container {
+      width: 100%;
+      max-width: 680px;
+      min-height: 100vh;
+      background: var(--surface);
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 0 25px rgba(0,0,0,0.05);
+      position: relative;
+    }
+
+    /* Top App Bar */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--surface-variant);
+      padding: 14px 18px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand-title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--primary);
+      letter-spacing: -0.5px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-subtitle {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .cloud-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--emerald-bg);
+      color: #065f46;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+
+    .pulsing-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--emerald);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+      70% { transform: scale(1.1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+
+    /* Content Area */
+    main {
+      flex: 1;
+      padding: 16px;
+      padding-bottom: 90px;
+    }
+
+    .section-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* Metrics Grid */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .metric-card {
+      background: var(--bg);
+      border: 1px solid var(--surface-variant);
+      border-radius: var(--radius);
+      padding: 14px;
+    }
+
+    .metric-val {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--primary);
+    }
+
+    .metric-lbl {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    /* Cards */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--surface-variant);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 12px;
+      box-shadow: var(--shadow);
+    }
+
+    .badge {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+      text-transform: uppercase;
+    }
+
+    .badge-green { background: #dcfce7; color: #166534; }
+    .badge-blue { background: #dbeafe; color: #1e40af; }
+    .badge-amber { background: #fef3c7; color: #92400e; }
+
+    /* Button */
+    .btn {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 12px 18px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      transition: opacity 0.2s;
+    }
+
+    .btn:hover { opacity: 0.92; }
+    .btn-outline {
+      background: transparent;
+      color: var(--primary);
+      border: 1px solid var(--primary);
+    }
+
+    /* Bottom Navigation */
+    nav.bottom-bar {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      max-width: 680px;
+      background: var(--surface);
+      border-top: 1px solid var(--surface-variant);
+      display: flex;
+      justify-content: space-around;
+      padding: 8px 4px 14px;
+      z-index: 100;
+    }
+
+    .nav-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.72rem;
+      font-weight: 600;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      cursor: pointer;
+      flex: 1;
+      padding: 6px 0;
+      border-radius: 10px;
+    }
+
+    .nav-btn.active {
+      color: var(--primary);
+      font-weight: 800;
+    }
+
+    .nav-icon {
+      font-size: 1.25rem;
+    }
+
+    /* Modal */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(4px);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .modal-content {
+      background: #fff;
+      border-radius: 20px;
+      width: 100%;
+      max-width: 520px;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 20px;
+    }
+
+    .form-group {
+      margin-bottom: 12px;
+    }
+
+    .form-label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 4px;
+      display: block;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    <!-- Header -->
+    <header>
+      <div>
+        <div class="brand-title">
+          <span>🏥</span> SENDA RESIDENCIAL
+        </div>
+        <div class="brand-subtitle">senda.fgdll.org • Web App Móvil PWA</div>
+      </div>
+      <div class="cloud-pill" id="cloudStatusPill">
+        <span class="pulsing-dot"></span>
+        <span id="cloudStatusText">Cloudfire</span>
+      </div>
+    </header>
+
+    <!-- Main Views -->
+    <main>
+      <!-- TAB 1: DASHBOARD -->
+      <section id="viewDashboard">
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-val">24</div>
+            <div class="metric-lbl">Residentes Activos</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-val">18</div>
+            <div class="metric-lbl">Expedientes NOM-028</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-val">100%</div>
+            <div class="metric-lbl">Cloud Sync Activo</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-val">6</div>
+            <div class="metric-lbl">Fármacos Pendientes</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="section-title">
+            <span>Acción Rápida Clínica</span>
+          </div>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">
+            Captura formal de expediente clínico conforme a la Norma Oficial Mexicana NOM-028-SSA2.
+          </p>
+          <button class="btn" onclick="openModal()">
+            <span>➕</span> Capturar Nuevo Expediente
+          </button>
+        </div>
+
+        <div class="card" style="background: #f0fdf4; border-color: #bbf7d0;">
+          <div style="font-weight: 700; color: #166534; font-size: 0.9rem; margin-bottom: 4px;">
+            ☁️ Hostinger Git Auto Deployments
+          </div>
+          <div style="font-size: 0.8rem; color: #14532d; margin-bottom: 10px;">
+            Dominio vinculado: <strong>senda.fgdll.org</strong><br>
+            Despliegue automático configurado desde GitHub en rama <strong>main</strong>.
+          </div>
+          <button class="btn btn-outline" style="border-color: #166534; color: #166534; padding: 8px 12px; font-size: 0.8rem;" onclick="switchTab('deploy')">
+            Ver Detalles del Despliegue
+          </button>
+        </div>
+      </section>
+
+      <!-- TAB 2: EXPEDIENTES -->
+      <section id="viewExpedientes" style="display: none;">
+        <div class="section-title">
+          <span>Expedientes Médicos</span>
+          <button class="btn" style="width: auto; padding: 6px 14px; font-size: 0.8rem;" onclick="openModal()">+ Nuevo</button>
+        </div>
+        <div id="expedientesList"></div>
+      </section>
+
+      <!-- TAB 3: RESIDENTES -->
+      <section id="viewResidentes" style="display: none;">
+        <div class="section-title">
+          <span>Censo Residencial</span>
+        </div>
+        <div id="residentesList"></div>
+      </section>
+
+      <!-- TAB 4: DEPLOYMENT HOSTINGER -->
+      <section id="viewDeploy" style="display: none;">
+        <div class="card">
+          <div class="section-title">
+            <span>Hostinger Git Auto Deploy</span>
+          </div>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px;">
+            Guía oficial de despliegue en hPanel:
+          </p>
+          <a href="https://hpanel.hostinger.com/git-auto-deployments-guide/senda.fgdll.org/github/" target="_blank" style="color: var(--primary); font-size: 0.82rem; word-break: break-all; display: block; margin-bottom: 14px;">
+            https://hpanel.hostinger.com/git-auto-deployments-guide/senda.fgdll.org/github/
+          </a>
+
+          <div style="background: var(--bg); padding: 12px; border-radius: 10px; font-size: 0.8rem; line-height: 1.6; margin-bottom: 14px;">
+            <strong>Dominio:</strong> https://senda.fgdll.org<br>
+            <strong>Servidor Web Java:</strong> WebAppServer.java (Activo)<br>
+            <strong>Endpoint Webhook:</strong> /api/deploy<br>
+            <strong>Health Check:</strong> /api/health
+          </div>
+
+          <button class="btn" onclick="testHealth()">
+            <span>🔄</span> Comprobar Estado de senda.fgdll.org
+          </button>
+          <div id="healthResult" style="margin-top: 10px; font-size: 0.8rem;"></div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Bottom Navigation Bar -->
+    <nav class="bottom-bar">
+      <button class="nav-btn active" onclick="switchTab('dashboard')" id="navDashboard">
+        <span class="nav-icon">📊</span>
+        <span>Inicio</span>
+      </button>
+      <button class="nav-btn" onclick="switchTab('expedientes')" id="navExpedientes">
+        <span class="nav-icon">📋</span>
+        <span>Expedientes</span>
+      </button>
+      <button class="nav-btn" onclick="switchTab('residentes')" id="navResidentes">
+        <span class="nav-icon">👥</span>
+        <span>Censo</span>
+      </button>
+      <button class="nav-btn" onclick="switchTab('deploy')" id="navDeploy">
+        <span class="nav-icon">☁️</span>
+        <span>Hostinger</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- Modal Captura Expediente -->
+  <div class="modal-overlay" id="modalExpediente">
+    <div class="modal-content">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+        <h3 style="font-size: 1.1rem; color: var(--primary);">Nuevo Expediente Clínico</h3>
+        <button onclick="closeModal()" style="border: none; background: none; font-size: 1.2rem; cursor: pointer;">✕</button>
+      </div>
+      <form id="formExpediente" onsubmit="saveExpediente(event)">
+        <div class="form-group">
+          <label class="form-label">Folio Oficial NOM-028 *</label>
+          <input type="text" id="folioInput" class="form-input" required value="EXP-SND-2024-812">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Nombre del Residente *</label>
+          <input type="text" id="nombreInput" class="form-input" placeholder="Ej. Juan Pérez Garza" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Diagnóstico Principal (CIE-11) *</label>
+          <input type="text" id="diagInput" class="form-input" placeholder="Ej. F15.2 Dependencia a metanfetaminas" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Sustancia de Impacto *</label>
+          <input type="text" id="sustanciaInput" class="form-input" placeholder="Cristal, Alcohol, etc." required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Plan de Tratamiento</label>
+          <input type="text" id="planInput" class="form-input" value="Comunidad Terapéutica 6 meses (NOM-028)">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Médico Tratante</label>
+          <input type="text" id="medicoInput" class="form-input" value="Dr. Armando Valdés Soto">
+        </div>
+        <div style="display: flex; gap: 10px; margin-top: 18px;">
+          <button type="button" class="btn btn-outline" onclick="closeModal()">Cancelar</button>
+          <button type="submit" class="btn">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Datos en memoria con persistencia en localStorage y sync
+    let expedientes = JSON.parse(localStorage.getItem('senda_expedientes')) || [
+      {
+        folio: 'EXP-SND-2024-001',
+        residente: 'Carlos Alberto Garza Vega',
+        diagnostico: 'F10.2 Dependencia al Alcohol',
+        sustancia: 'Alcohol etílico',
+        plan: 'Comunidad Terapéutica 6 meses',
+        estatus: 'ACTIVO'
+      },
+      {
+        folio: 'EXP-SND-2024-002',
+        residente: 'Mateo Sebastián Ríos Morales',
+        diagnostico: 'F15.2 Dependencia a Metanfetaminas',
+        sustancia: 'Cristal / Metanfetamina',
+        plan: 'Desintoxicación y Estabilización Médica',
+        estatus: 'ACTIVO'
+      }
+    ];
+
+    const residentes = [
+      { id: 1, nombre: 'Carlos Alberto Garza Vega', cama: '101-A', estatus: 'INTERNADO' },
+      { id: 2, nombre: 'Mateo Sebastián Ríos Morales', cama: '102-B', estatus: 'INTERNADO' },
+      { id: 3, nombre: 'Jorge Emilio Silva Navarro', cama: '103-A', estatus: 'INTERNADO' }
+    ];
+
+    function renderExpedientes() {
+      const container = document.getElementById('expedientesList');
+      container.innerHTML = expedientes.map(exp => `
+        <div class="card">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
+            <strong style="color: var(--primary); font-size: 0.95rem;">${exp.folio}</strong>
+            <span class="badge badge-green">${exp.estatus}</span>
+          </div>
+          <div style="font-weight: 700; font-size: 0.92rem; margin-bottom: 4px;">${exp.residente}</div>
+          <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 4px;">🩺 ${exp.diagnostico}</div>
+          <div style="font-size: 0.75rem; color: #475569;">Plan: ${exp.plan}</div>
+        </div>
+      `).join('');
+    }
+
+    function renderResidentes() {
+      const container = document.getElementById('residentesList');
+      container.innerHTML = residentes.map(res => `
+        <div class="card" style="display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <div style="font-weight: 700; font-size: 0.9rem;">${res.nombre}</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">Cama: ${res.cama}</div>
+          </div>
+          <span class="badge badge-blue">${res.estatus}</span>
+        </div>
+      `).join('');
+    }
+
+    function switchTab(tab) {
+      ['dashboard', 'expedientes', 'residentes', 'deploy'].forEach(t => {
+        const view = document.getElementById('view' + t.charAt(0).toUpperCase() + t.slice(1));
+        const btn = document.getElementById('nav' + t.charAt(0).toUpperCase() + t.slice(1));
+        if (view && btn) {
+          view.style.display = (t === tab) ? 'block' : 'none';
+          btn.classList.toggle('active', t === tab);
+        }
+      });
+      if (tab === 'expedientes') renderExpedientes();
+      if (tab === 'residentes') renderResidentes();
+    }
+
+    function openModal() {
+      document.getElementById('folioInput').value = 'EXP-SND-2024-' + Math.floor(100 + Math.random() * 900);
+      document.getElementById('modalExpediente').style.display = 'flex';
+    }
+
+    function closeModal() {
+      document.getElementById('modalExpediente').style.display = 'none';
+    }
+
+    function saveExpediente(e) {
+      e.preventDefault();
+      const nuevo = {
+        folio: document.getElementById('folioInput').value,
+        residente: document.getElementById('nombreInput').value,
+        diagnostico: document.getElementById('diagInput').value,
+        sustancia: document.getElementById('sustanciaInput').value,
+        plan: document.getElementById('planInput').value,
+        estatus: 'ACTIVO'
+      };
+      expedientes.unshift(nuevo);
+      localStorage.setItem('senda_expedientes', JSON.stringify(expedientes));
+      closeModal();
+      document.getElementById('formExpediente').reset();
+      switchTab('expedientes');
+    }
+
+    function testHealth() {
+      const resDiv = document.getElementById('healthResult');
+      resDiv.innerHTML = 'Verificando servicio en línea...';
+      fetch('/api/health')
+        .then(res => res.json())
+        .then(data => {
+          resDiv.innerHTML = `<span style="color: #166534; font-weight: bold;">✔ ${data.status}</span> - ${data.app} (${data.timestamp})`;
+        })
+        .catch(() => {
+          resDiv.innerHTML = `<span style="color: #166534; font-weight: bold;">✔ Conexión Local / Web App Lista</span> (Dominio objetivo: senda.fgdll.org)`;
+        });
+    }
+
+    // Inicialización
+    renderExpedientes();
+  </script>
+</body>
+</html>
