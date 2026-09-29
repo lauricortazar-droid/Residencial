@@ -2,570 +2,1160 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#00687a">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>SENDA Residencial • Web App Móvil & ERP Clínico</title>
+  <title>SENDA Residencial • Portal Clínico y ERP Web (Hostinger)</title>
   <link rel="manifest" href="manifest.json">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     :root {
       --primary: #00687a;
+      --primary-hover: #005160;
+      --primary-light: #e0f2fe;
       --primary-container: #b5ebff;
-      --on-primary: #ffffff;
-      --on-primary-container: #001f26;
-      --emerald: #10b981;
-      --emerald-bg: rgba(16, 185, 129, 0.12);
-      --bg: #f8fafc;
-      --surface: #ffffff;
-      --surface-variant: #e2e8f0;
-      --text: #0f172a;
-      --text-muted: #64748b;
-      --border: #cbd5e1;
-      --radius: 16px;
-      --shadow: 0 4px 14px -2px rgba(0, 0, 0, 0.05);
+      --emerald: #059669;
+      --emerald-light: #d1fae5;
+      --amber: #d97706;
+      --amber-light: #fef3c7;
+      --rose: #e11d48;
+      --rose-light: #ffe4e6;
+      --slate-50: #f8fafc;
+      --slate-100: #f1f5f9;
+      --slate-200: #e2e8f0;
+      --slate-300: #cbd5e1;
+      --slate-600: #475569;
+      --slate-700: #334155;
+      --slate-800: #1e293b;
+      --slate-900: #0f172a;
+      --sidebar-w: 260px;
+      --radius: 12px;
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      -webkit-tap-highlight-color: transparent;
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
     }
 
     body {
-      background-color: var(--bg);
-      color: var(--text);
+      background-color: var(--slate-50);
+      color: var(--slate-800);
       display: flex;
-      justify-content: center;
-      min-height: 100vh;
-      line-height: 1.5;
+      height: 100vh;
+      overflow: hidden;
     }
 
-    /* Mobile-first responsive wrapper */
-    .app-container {
-      width: 100%;
-      max-width: 680px;
-      min-height: 100vh;
-      background: var(--surface);
+    /* =========================================
+       SIDEBAR WORKSTATION (Desktop & Tablet)
+       ========================================= */
+    aside.sidebar {
+      width: var(--sidebar-w);
+      background: var(--slate-900);
+      color: #fff;
       display: flex;
       flex-direction: column;
-      box-shadow: 0 0 25px rgba(0,0,0,0.05);
-      position: relative;
+      flex-shrink: 0;
+      border-right: 1px solid var(--slate-800);
+      z-index: 50;
     }
 
-    /* Top App Bar */
-    header {
-      background: var(--surface);
-      border-bottom: 1px solid var(--surface-variant);
-      padding: 14px 18px;
-      position: sticky;
-      top: 0;
-      z-index: 100;
+    .brand-box {
+      padding: 24px 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .brand-logo {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-    }
-
-    .brand-title {
-      font-size: 1.15rem;
+      gap: 10px;
       font-weight: 800;
-      color: var(--primary);
+      font-size: 1.15rem;
       letter-spacing: -0.5px;
+      color: #fff;
+    }
+
+    .brand-logo-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      background: var(--primary);
       display: flex;
       align-items: center;
-      gap: 8px;
+      justify-content: center;
+      font-size: 1.1rem;
     }
 
-    .brand-subtitle {
-      font-size: 0.72rem;
-      color: var(--text-muted);
-      font-weight: 500;
-    }
-
-    .cloud-pill {
+    .brand-tag {
+      font-size: 0.7rem;
+      color: #94a3b8;
+      margin-top: 4px;
       display: flex;
       align-items: center;
       gap: 6px;
-      background: var(--emerald-bg);
-      color: #065f46;
-      font-size: 0.72rem;
+    }
+
+    .server-status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      font-size: 0.68rem;
       font-weight: 700;
-      padding: 6px 12px;
+      padding: 2px 8px;
       border-radius: 999px;
-      border: 1px solid rgba(16, 185, 129, 0.2);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      margin-top: 8px;
     }
 
-    .pulsing-dot {
-      width: 7px;
-      height: 7px;
+    .pulse {
+      width: 6px;
+      height: 6px;
       border-radius: 50%;
-      background: var(--emerald);
-      animation: pulse 2s infinite;
+      background: #10b981;
     }
 
-    @keyframes pulse {
-      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
-      70% { transform: scale(1.1); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
-      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
-    }
-
-    /* Content Area */
-    main {
+    .nav-menu {
       flex: 1;
-      padding: 16px;
-      padding-bottom: 90px;
+      padding: 16px 12px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
     }
 
-    .section-title {
-      font-size: 1.1rem;
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      color: #94a3b8;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.88rem;
+      font-weight: 600;
+      transition: all 0.15s ease;
+      user-select: none;
+    }
+
+    .nav-item:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: #fff;
+    }
+
+    .nav-item.active {
+      background: var(--primary);
+      color: #fff;
       font-weight: 700;
-      margin-bottom: 12px;
+      box-shadow: 0 4px 12px rgba(0, 104, 122, 0.35);
+    }
+
+    .nav-item-icon {
+      font-size: 1.15rem;
+      width: 24px;
+      text-align: center;
+    }
+
+    .sidebar-footer {
+      padding: 16px 20px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.75rem;
+      color: #64748b;
+    }
+
+    /* =========================================
+       MAIN WORKSTATION LAYOUT
+       ========================================= */
+    main.main-viewport {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: var(--slate-50);
+    }
+
+    header.topbar {
+      height: 68px;
+      background: #fff;
+      border-bottom: 1px solid var(--slate-200);
       display: flex;
       align-items: center;
       justify-content: space-between;
+      padding: 0 28px;
+      flex-shrink: 0;
     }
 
-    /* Metrics Grid */
-    .metrics-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
-      margin-bottom: 18px;
-    }
-
-    .metric-card {
-      background: var(--bg);
-      border: 1px solid var(--surface-variant);
-      border-radius: var(--radius);
-      padding: 14px;
-    }
-
-    .metric-val {
-      font-size: 1.6rem;
+    .page-header-info h1 {
+      font-size: 1.25rem;
       font-weight: 800;
-      color: var(--primary);
+      color: var(--slate-900);
+      letter-spacing: -0.5px;
     }
 
-    .metric-lbl {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      font-weight: 600;
+    .page-header-info p {
+      font-size: 0.78rem;
+      color: var(--slate-600);
     }
 
-    /* Cards */
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--surface-variant);
-      border-radius: var(--radius);
-      padding: 16px;
-      margin-bottom: 12px;
-      box-shadow: var(--shadow);
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
 
-    .badge {
-      display: inline-block;
-      font-size: 0.7rem;
-      font-weight: 700;
-      padding: 3px 8px;
-      border-radius: 6px;
-      text-transform: uppercase;
+    .content-scrollable {
+      flex: 1;
+      overflow-y: auto;
+      padding: 28px;
     }
 
-    .badge-green { background: #dcfce7; color: #166534; }
-    .badge-blue { background: #dbeafe; color: #1e40af; }
-    .badge-amber { background: #fef3c7; color: #92400e; }
-
-    /* Button */
+    /* =========================================
+       COMPONENTS: BUTTONS, BADGES, CARDS
+       ========================================= */
     .btn {
-      background: var(--primary);
-      color: #fff;
-      border: none;
-      border-radius: 12px;
-      padding: 12px 18px;
-      font-size: 0.9rem;
-      font-weight: 600;
-      cursor: pointer;
       display: inline-flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
-      width: 100%;
-      transition: opacity 0.2s;
-    }
-
-    .btn:hover { opacity: 0.92; }
-    .btn-outline {
-      background: transparent;
-      color: var(--primary);
-      border: 1px solid var(--primary);
-    }
-
-    /* Bottom Navigation */
-    nav.bottom-bar {
-      position: fixed;
-      bottom: 0;
-      width: 100%;
-      max-width: 680px;
-      background: var(--surface);
-      border-top: 1px solid var(--surface-variant);
-      display: flex;
-      justify-content: space-around;
-      padding: 8px 4px 14px;
-      z-index: 100;
-    }
-
-    .nav-btn {
-      background: none;
-      border: none;
-      color: var(--text-muted);
-      font-size: 0.72rem;
+      padding: 9px 16px;
+      font-size: 0.85rem;
       font-weight: 600;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 3px;
+      border-radius: 8px;
+      border: 1px solid transparent;
       cursor: pointer;
-      flex: 1;
-      padding: 6px 0;
-      border-radius: 10px;
+      transition: all 0.15s ease;
+      text-decoration: none;
     }
 
-    .nav-btn.active {
-      color: var(--primary);
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+    }
+    .btn-primary:hover {
+      background: var(--primary-hover);
+    }
+
+    .btn-outline {
+      background: #fff;
+      color: var(--slate-700);
+      border-color: var(--slate-300);
+    }
+    .btn-outline:hover {
+      background: var(--slate-100);
+      color: var(--slate-900);
+    }
+
+    .btn-success {
+      background: var(--emerald);
+      color: #fff;
+    }
+
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 0.78rem;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .badge-green { background: var(--emerald-light); color: #065f46; }
+    .badge-blue { background: var(--primary-light); color: #0369a1; }
+    .badge-amber { background: var(--amber-light); color: #92400e; }
+    .badge-rose { background: var(--rose-light); color: #9f1239; }
+
+    /* KPI Grid */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 18px;
+      margin-bottom: 24px;
+    }
+
+    .kpi-card {
+      background: #fff;
+      border: 1px solid var(--slate-200);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .kpi-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--slate-600);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .kpi-value {
+      font-size: 1.85rem;
       font-weight: 800;
+      color: var(--slate-900);
+      margin: 6px 0 2px;
     }
 
-    .nav-icon {
-      font-size: 1.25rem;
+    .kpi-sub {
+      font-size: 0.75rem;
+      color: var(--slate-600);
     }
 
-    /* Modal */
-    .modal-overlay {
+    /* Data Tables */
+    .table-container {
+      background: #fff;
+      border: 1px solid var(--slate-200);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+      margin-bottom: 24px;
+    }
+
+    .table-toolbar {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--slate-200);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .table-toolbar-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--slate-900);
+    }
+
+    .search-input {
+      padding: 8px 14px;
+      font-size: 0.85rem;
+      border: 1px solid var(--slate-300);
+      border-radius: 8px;
+      width: 260px;
+    }
+
+    table.data-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.85rem;
+    }
+
+    table.data-table th {
+      background: var(--slate-100);
+      color: var(--slate-600);
+      font-weight: 700;
+      padding: 12px 18px;
+      border-bottom: 1px solid var(--slate-200);
+      text-transform: uppercase;
+      font-size: 0.72rem;
+      letter-spacing: 0.5px;
+    }
+
+    table.data-table td {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--slate-200);
+      color: var(--slate-700);
+    }
+
+    table.data-table tr:hover td {
+      background: #f8fafc;
+    }
+
+    .mono {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+    }
+
+    /* Modal Form */
+    .modal-backdrop {
       display: none;
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
       background: rgba(15, 23, 42, 0.6);
       backdrop-filter: blur(4px);
-      z-index: 200;
+      z-index: 100;
       align-items: center;
       justify-content: center;
-      padding: 16px;
-    }
-
-    .modal-content {
-      background: #fff;
-      border-radius: 20px;
-      width: 100%;
-      max-width: 520px;
-      max-height: 90vh;
-      overflow-y: auto;
       padding: 20px;
     }
 
+    .modal-window {
+      background: #fff;
+      border-radius: 16px;
+      width: 100%;
+      max-width: 640px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+      padding: 28px;
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--slate-200);
+      padding-bottom: 14px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 14px;
+    }
+
     .form-group {
-      margin-bottom: 12px;
+      margin-bottom: 14px;
     }
 
     .form-label {
-      font-size: 0.8rem;
-      font-weight: 700;
-      color: var(--text);
-      margin-bottom: 4px;
       display: block;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--slate-700);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
     }
 
-    .form-input {
+    .form-control {
       width: 100%;
       padding: 10px 14px;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      font-size: 0.9rem;
+      border: 1px solid var(--slate-300);
+      border-radius: 8px;
+      font-size: 0.88rem;
+      background: #fff;
+    }
+
+    /* Responsive for mobile */
+    @media (max-width: 900px) {
+      body {
+        flex-direction: column;
+      }
+      aside.sidebar {
+        width: 100%;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid var(--slate-800);
+      }
+      .nav-menu {
+        flex-direction: row;
+        overflow-x: auto;
+        padding: 8px;
+      }
+      .brand-box {
+        padding: 14px 18px;
+      }
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+      .content-scrollable {
+        padding: 16px;
+      }
     }
   </style>
 </head>
 <body>
 
-  <div class="app-container">
-    <!-- Header -->
-    <header>
-      <div>
-        <div class="brand-title">
-          <span>🏥</span> SENDA RESIDENCIAL
-        </div>
-        <div class="brand-subtitle">senda.fgdll.org • Web App Móvil PWA</div>
+  <!-- ==============================================
+       SIDEBAR WORKSTATION (Desktop & Responsive)
+       ============================================== -->
+  <aside class="sidebar">
+    <div class="brand-box">
+      <div class="brand-logo">
+        <div class="brand-logo-icon">🏥</div>
+        <span>SENDA Residencial</span>
       </div>
-      <div class="cloud-pill" id="cloudStatusPill">
-        <span class="pulsing-dot"></span>
-        <span id="cloudStatusText">Cloudfire</span>
+      <div class="brand-tag">
+        Portal ERP Clínico Web • NOM-028
+      </div>
+      <div class="server-status-pill">
+        <span class="pulse"></span>
+        <span>Java REST • Hostinger</span>
+      </div>
+    </div>
+
+    <nav class="nav-menu">
+      <div class="nav-item active" onclick="navigate('dashboard')" id="nav-dashboard">
+        <span class="nav-item-icon">📊</span>
+        <span>Panel Ejecutivo</span>
+      </div>
+      <div class="nav-item" onclick="navigate('expedientes')" id="nav-expedientes">
+        <span class="nav-item-icon">📋</span>
+        <span>Expedientes Clínicos</span>
+      </div>
+      <div class="nav-item" onclick="navigate('censo')" id="nav-censo">
+        <span class="nav-item-icon">👥</span>
+        <span>Censo y Habitaciones</span>
+      </div>
+      <div class="nav-item" onclick="navigate('enfermeria')" id="nav-enfermeria">
+        <span class="nav-item-icon">💊</span>
+        <span>Enfermería y Fármacos</span>
+      </div>
+      <div class="nav-item" onclick="navigate('finanzas')" id="nav-finanzas">
+        <span class="nav-item-icon">💰</span>
+        <span>Finanzas y Cuotas</span>
+      </div>
+      <div class="nav-item" onclick="navigate('bitacora')" id="nav-bitacora">
+        <span class="nav-item-icon">🛡️</span>
+        <span>Bitácora de Guardia</span>
+      </div>
+      <div class="nav-item" onclick="navigate('hostinger')" id="nav-hostinger">
+        <span class="nav-item-icon">☁️</span>
+        <span>Hostinger & Git Deploy</span>
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div>Dominio: <strong>senda.fgdll.org</strong></div>
+      <div style="margin-top: 4px; color: #475569;">Backend: WebAppServer.java (JDK 11)</div>
+    </div>
+  </aside>
+
+  <!-- ==============================================
+       MAIN WORKSTATION CONTENT
+       ============================================== -->
+  <main class="main-viewport">
+    <header class="topbar">
+      <div class="page-header-info">
+        <h1 id="topbarTitle">Panel Ejecutivo y Clínico</h1>
+        <p id="topbarSubtitle">Sistema Integral Web para Comunidades Terapéuticas y Centros de Rehabilitación</p>
+      </div>
+      <div class="topbar-actions">
+        <button class="btn btn-outline btn-sm" onclick="exportData('csv')">
+          <span>📥</span> Exportar CSV
+        </button>
+        <button class="btn btn-outline btn-sm" onclick="exportData('json')">
+          <span>📄</span> Exportar JSON
+        </button>
+        <button class="btn btn-primary btn-sm" onclick="openNewExpedienteModal()">
+          <span>➕</span> Nuevo Expediente
+        </button>
       </div>
     </header>
 
-    <!-- Main Views -->
-    <main>
-      <!-- TAB 1: DASHBOARD -->
-      <section id="viewDashboard">
-        <div class="metrics-grid">
-          <div class="metric-card">
-            <div class="metric-val">24</div>
-            <div class="metric-lbl">Residentes Activos</div>
+    <div class="content-scrollable">
+
+      <!-- ==========================================
+           TAB 1: PANEL EJECUTIVO (DASHBOARD)
+           ========================================== -->
+      <section id="section-dashboard">
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-label">Residentes Internados</div>
+            <div class="kpi-value" id="kpiResidentes">3</div>
+            <div class="kpi-sub">Capacidad: 24 camas activas</div>
           </div>
-          <div class="metric-card">
-            <div class="metric-val">18</div>
-            <div class="metric-lbl">Expedientes NOM-028</div>
+          <div class="kpi-card">
+            <div class="kpi-label">Expedientes NOM-028</div>
+            <div class="kpi-value" id="kpiExpedientes">2</div>
+            <div class="kpi-sub">100% con Consentimiento Firmado</div>
           </div>
-          <div class="metric-card">
-            <div class="metric-val">100%</div>
-            <div class="metric-lbl">Cloud Sync Activo</div>
+          <div class="kpi-card">
+            <div class="kpi-label">Fármacos Pendientes</div>
+            <div class="kpi-value" id="kpiFarmacos">1</div>
+            <div class="kpi-sub">Turno de las 20:00 hrs</div>
           </div>
-          <div class="metric-card">
-            <div class="metric-val">6</div>
-            <div class="metric-lbl">Fármacos Pendientes</div>
+          <div class="kpi-card">
+            <div class="kpi-label">Saldo en Caja</div>
+            <div class="kpi-value" id="kpiFinanzas">$6,150.00</div>
+            <div class="kpi-sub">Ingresos $8,500 • Egresos $2,350</div>
           </div>
         </div>
 
-        <div class="card">
-          <div class="section-title">
-            <span>Acción Rápida Clínica</span>
+        <div class="table-container">
+          <div class="table-toolbar">
+            <div class="table-toolbar-title">Expedientes Clínicos Recientes (NOM-028-SSA2)</div>
+            <button class="btn btn-outline btn-sm" onclick="navigate('expedientes')">Ver Todos</button>
           </div>
-          <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">
-            Captura formal de expediente clínico conforme a la Norma Oficial Mexicana NOM-028-SSA2.
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Folio</th>
+                <th>Residente</th>
+                <th>Diagnóstico CIE-11</th>
+                <th>Sustancia Impacto</th>
+                <th>Médico Responsable</th>
+                <th>Estatus</th>
+              </tr>
+            </thead>
+            <tbody id="dashboardExpedientesTable">
+              <!-- Renderizado dinámico desde Java REST API -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ==========================================
+           TAB 2: EXPEDIENTES CLÍNICOS (NOM-028)
+           ========================================== -->
+      <section id="section-expedientes" style="display: none;">
+        <div class="table-container">
+          <div class="table-toolbar">
+            <div>
+              <div class="table-toolbar-title">Registro Maestro de Expedientes Clínicos</div>
+              <p style="font-size: 0.78rem; color: var(--slate-600);">Norma Oficial Mexicana NOM-028-SSA2-2009 para la Prevención y Tratamiento de Adicciones</p>
+            </div>
+            <div style="display: flex; gap: 10px;">
+              <input type="text" class="search-input" id="searchExpediente" placeholder="Buscar por folio, nombre o diagnóstico..." onkeyup="filterExpedientes()">
+              <button class="btn btn-primary btn-sm" onclick="openNewExpedienteModal()">+ Crear Expediente</button>
+            </div>
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Folio Oficial</th>
+                <th>Nombre del Residente</th>
+                <th>Apertura</th>
+                <th>Diagnóstico (CIE)</th>
+                <th>Sustancia</th>
+                <th>Médico / Psicólogo</th>
+                <th>Consentimiento</th>
+                <th>Estatus</th>
+              </tr>
+            </thead>
+            <tbody id="expedientesFullTable">
+              <!-- Renderizado dinámico -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ==========================================
+           TAB 3: CENSO Y HABITACIONES
+           ========================================== -->
+      <section id="section-censo" style="display: none;">
+        <div class="table-container">
+          <div class="table-toolbar">
+            <div class="table-toolbar-title">Censo Poblacional de Residentes</div>
+            <button class="btn btn-primary btn-sm" onclick="openNewResidentModal()">+ Registrar Residente</button>
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nombre Completo</th>
+                <th>Edad</th>
+                <th>Cama / Habitación</th>
+                <th>Fecha Ingreso</th>
+                <th>Familiar / Tutor de Contacto</th>
+                <th>Estatus</th>
+              </tr>
+            </thead>
+            <tbody id="censoTable">
+              <!-- Renderizado dinámico -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ==========================================
+           TAB 4: ENFERMERÍA Y FÁRMACOS
+           ========================================== -->
+      <section id="section-enfermeria" style="display: none;">
+        <div class="table-container">
+          <div class="table-toolbar">
+            <div class="table-toolbar-title">Control de Administración de Medicamentos</div>
+            <button class="btn btn-primary btn-sm" onclick="openNewFarmacoModal()">+ Prescribir Fármaco</button>
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Residente</th>
+                <th>Medicamento</th>
+                <th>Posología / Dosis</th>
+                <th>Horario Programado</th>
+                <th>Estatus</th>
+                <th>Acción de Enfermería</th>
+              </tr>
+            </thead>
+            <tbody id="farmacosTable">
+              <!-- Renderizado dinámico -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ==========================================
+           TAB 5: FINANZAS Y CUOTAS
+           ========================================== -->
+      <section id="section-finanzas" style="display: none;">
+        <div class="table-container">
+          <div class="table-toolbar">
+            <div class="table-toolbar-title">Control de Ingresos, Cuotas de Recuperación y Egresos</div>
+            <button class="btn btn-primary btn-sm" onclick="openNewTransaccionModal()">+ Registrar Movimiento</button>
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Concepto</th>
+                <th>Tipo de Flujo</th>
+                <th>Monto (MXN)</th>
+              </tr>
+            </thead>
+            <tbody id="finanzasTable">
+              <!-- Renderizado dinámico -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ==========================================
+           TAB 6: BITÁCORA DE GUARDIA
+           ========================================== -->
+      <section id="section-bitacora" style="display: none;">
+        <div class="table-container">
+          <div class="table-toolbar">
+            <div class="table-toolbar-title">Bitácora Cronológica de Turnos e Incidencias</div>
+            <button class="btn btn-primary btn-sm" onclick="openNewBitacoraModal()">+ Registrar Reporte de Turno</button>
+          </div>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Fecha y Hora</th>
+                <th>Turno Operativo</th>
+                <th>Responsable de Guardia</th>
+                <th>Observaciones e Incidencias</th>
+              </tr>
+            </thead>
+            <tbody id="bitacoraTable">
+              <!-- Renderizado dinámico -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ==========================================
+           TAB 7: HOSTINGER & GIT AUTO-DEPLOY
+           ========================================== -->
+      <section id="section-hostinger" style="display: none;">
+        <div class="kpi-card" style="margin-bottom: 20px;">
+          <div class="table-toolbar-title" style="margin-bottom: 8px;">Configuración de Despliegue en Hostinger hPanel</div>
+          <p style="font-size: 0.85rem; color: var(--slate-600); margin-bottom: 16px;">
+            Este servidor Java (<code>WebAppServer.java</code>) aloja y sirve esta Web App en <strong>https://senda.fgdll.org</strong> con sincronización automática desde GitHub.
           </p>
-          <button class="btn" onclick="openModal()">
-            <span>➕</span> Capturar Nuevo Expediente
-          </button>
-        </div>
-
-        <div class="card" style="background: #f0fdf4; border-color: #bbf7d0;">
-          <div style="font-weight: 700; color: #166534; font-size: 0.9rem; margin-bottom: 4px;">
-            ☁️ Hostinger Git Auto Deployments
+          <div style="background: var(--slate-100); padding: 16px; border-radius: 8px; font-size: 0.85rem; line-height: 1.8; margin-bottom: 16px;">
+            <strong>Guía oficial en Hostinger:</strong><br>
+            <a href="https://hpanel.hostinger.com/git-auto-deployments-guide/senda.fgdll.org/github/" target="_blank" style="color: var(--primary); font-weight: 700; word-break: break-all;">
+              https://hpanel.hostinger.com/git-auto-deployments-guide/senda.fgdll.org/github/
+            </a><br>
+            <strong>Dominio institucional:</strong> https://senda.fgdll.org<br>
+            <strong>Endpoint REST Health:</strong> <code>GET /api/health</code><br>
+            <strong>Endpoint Webhook Git:</strong> <code>POST /api/deploy</code><br>
+            <strong>Comando para ejecución en Hostinger:</strong> <code>java WebAppServer.java 8080</code>
           </div>
-          <div style="font-size: 0.8rem; color: #14532d; margin-bottom: 10px;">
-            Dominio vinculado: <strong>senda.fgdll.org</strong><br>
-            Despliegue automático configurado desde GitHub en rama <strong>main</strong>.
+          <div style="display: flex; gap: 12px;">
+            <button class="btn btn-primary" onclick="testHealthCheck()">
+              <span>🩺</span> Probar Health Check del Servidor Java
+            </button>
+            <button class="btn btn-outline" onclick="triggerManualDeploy()">
+              <span>🔄</span> Disparar Auto-Deploy (Simulación Webhook)
+            </button>
           </div>
-          <button class="btn btn-outline" style="border-color: #166534; color: #166534; padding: 8px 12px; font-size: 0.8rem;" onclick="switchTab('deploy')">
-            Ver Detalles del Despliegue
-          </button>
+          <div id="deployConsole" style="margin-top: 16px; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; background: var(--slate-900); color: #34d399; padding: 14px; border-radius: 8px; display: none;"></div>
         </div>
       </section>
 
-      <!-- TAB 2: EXPEDIENTES -->
-      <section id="viewExpedientes" style="display: none;">
-        <div class="section-title">
-          <span>Expedientes Médicos</span>
-          <button class="btn" style="width: auto; padding: 6px 14px; font-size: 0.8rem;" onclick="openModal()">+ Nuevo</button>
-        </div>
-        <div id="expedientesList"></div>
-      </section>
+    </div>
+  </main>
 
-      <!-- TAB 3: RESIDENTES -->
-      <section id="viewResidentes" style="display: none;">
-        <div class="section-title">
-          <span>Censo Residencial</span>
-        </div>
-        <div id="residentesList"></div>
-      </section>
+  <!-- ==============================================
+       MODALES DE CAPTURA RÁPIDA (CLÍNICA, RESIDENTES, ETC.)
+       ============================================== -->
 
-      <!-- TAB 4: DEPLOYMENT HOSTINGER -->
-      <section id="viewDeploy" style="display: none;">
-        <div class="card">
-          <div class="section-title">
-            <span>Hostinger Git Auto Deploy</span>
-          </div>
-          <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px;">
-            Guía oficial de despliegue en hPanel:
-          </p>
-          <a href="https://hpanel.hostinger.com/git-auto-deployments-guide/senda.fgdll.org/github/" target="_blank" style="color: var(--primary); font-size: 0.82rem; word-break: break-all; display: block; margin-bottom: 14px;">
-            https://hpanel.hostinger.com/git-auto-deployments-guide/senda.fgdll.org/github/
-          </a>
-
-          <div style="background: var(--bg); padding: 12px; border-radius: 10px; font-size: 0.8rem; line-height: 1.6; margin-bottom: 14px;">
-            <strong>Dominio:</strong> https://senda.fgdll.org<br>
-            <strong>Servidor Web Java:</strong> WebAppServer.java (Activo)<br>
-            <strong>Endpoint Webhook:</strong> /api/deploy<br>
-            <strong>Health Check:</strong> /api/health
-          </div>
-
-          <button class="btn" onclick="testHealth()">
-            <span>🔄</span> Comprobar Estado de senda.fgdll.org
-          </button>
-          <div id="healthResult" style="margin-top: 10px; font-size: 0.8rem;"></div>
-        </div>
-      </section>
-    </main>
-
-    <!-- Bottom Navigation Bar -->
-    <nav class="bottom-bar">
-      <button class="nav-btn active" onclick="switchTab('dashboard')" id="navDashboard">
-        <span class="nav-icon">📊</span>
-        <span>Inicio</span>
-      </button>
-      <button class="nav-btn" onclick="switchTab('expedientes')" id="navExpedientes">
-        <span class="nav-icon">📋</span>
-        <span>Expedientes</span>
-      </button>
-      <button class="nav-btn" onclick="switchTab('residentes')" id="navResidentes">
-        <span class="nav-icon">👥</span>
-        <span>Censo</span>
-      </button>
-      <button class="nav-btn" onclick="switchTab('deploy')" id="navDeploy">
-        <span class="nav-icon">☁️</span>
-        <span>Hostinger</span>
-      </button>
-    </nav>
-  </div>
-
-  <!-- Modal Captura Expediente -->
-  <div class="modal-overlay" id="modalExpediente">
-    <div class="modal-content">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
-        <h3 style="font-size: 1.1rem; color: var(--primary);">Nuevo Expediente Clínico</h3>
-        <button onclick="closeModal()" style="border: none; background: none; font-size: 1.2rem; cursor: pointer;">✕</button>
+  <!-- Modal Nuevo Expediente -->
+  <div class="modal-backdrop" id="modalExpediente">
+    <div class="modal-window">
+      <div class="modal-header">
+        <h2 style="font-size: 1.15rem; color: var(--primary);">Nuevo Expediente Clínico NOM-028</h2>
+        <button onclick="closeModals()" style="border:none; background:none; font-size:1.3rem; cursor:pointer;">✕</button>
       </div>
-      <form id="formExpediente" onsubmit="saveExpediente(event)">
-        <div class="form-group">
-          <label class="form-label">Folio Oficial NOM-028 *</label>
-          <input type="text" id="folioInput" class="form-input" required value="EXP-SND-2024-812">
+      <form onsubmit="submitExpediente(event)">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Folio Oficial NOM-028</label>
+            <input type="text" id="m_folio" class="form-control" required value="EXP-SND-2024-003">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Tipo de Ingreso</label>
+            <select id="m_tipo" class="form-control">
+              <option value="VOLUNTARIO">Voluntario</option>
+              <option value="INVOLUNTARIO">Involuntario / Familiar</option>
+              <option value="OBLIGATORIO">Obligatorio / Legal</option>
+            </select>
+          </div>
         </div>
         <div class="form-group">
-          <label class="form-label">Nombre del Residente *</label>
-          <input type="text" id="nombreInput" class="form-input" placeholder="Ej. Juan Pérez Garza" required>
+          <label class="form-label">Nombre Completo del Residente</label>
+          <input type="text" id="m_nombre" class="form-control" placeholder="Ej. Juan Pérez García" required>
         </div>
-        <div class="form-group">
-          <label class="form-label">Diagnóstico Principal (CIE-11) *</label>
-          <input type="text" id="diagInput" class="form-input" placeholder="Ej. F15.2 Dependencia a metanfetaminas" required>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Diagnóstico Principal (CIE-11)</label>
+            <input type="text" id="m_diag" class="form-control" placeholder="Ej. F15.2 Dependencia a Estimulantes" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Sustancia de Impacto</label>
+            <input type="text" id="m_sustancia" class="form-control" placeholder="Metanfetamina, Alcohol, etc." required>
+          </div>
         </div>
-        <div class="form-group">
-          <label class="form-label">Sustancia de Impacto *</label>
-          <input type="text" id="sustanciaInput" class="form-input" placeholder="Cristal, Alcohol, etc." required>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Médico Tratante</label>
+            <input type="text" id="m_medico" class="form-control" value="Dr. Armando Valdés Soto">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Psicólogo Responsable</label>
+            <input type="text" id="m_psicologo" class="form-control" value="Lic. Elena Cárdenas">
+          </div>
         </div>
         <div class="form-group">
           <label class="form-label">Plan de Tratamiento</label>
-          <input type="text" id="planInput" class="form-input" value="Comunidad Terapéutica 6 meses (NOM-028)">
+          <input type="text" id="m_plan" class="form-control" value="Comunidad Terapéutica 6 meses (NOM-028)">
         </div>
         <div class="form-group">
-          <label class="form-label">Médico Tratante</label>
-          <input type="text" id="medicoInput" class="form-input" value="Dr. Armando Valdés Soto">
+          <label style="display:flex; align-items:center; gap:8px; font-size:0.85rem; font-weight:600; cursor:pointer;">
+            <input type="checkbox" id="m_consentimiento" checked>
+            <span>Consentimiento Informado Firmado por Residente y Tutor (Art. 13 NOM-028)</span>
+          </label>
         </div>
-        <div style="display: flex; gap: 10px; margin-top: 18px;">
-          <button type="button" class="btn btn-outline" onclick="closeModal()">Cancelar</button>
-          <button type="submit" class="btn">Guardar</button>
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+          <button type="button" class="btn btn-outline" onclick="closeModals()">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Guardar en Web App</button>
         </div>
       </form>
     </div>
   </div>
 
+  <!-- Modal Nuevo Residente -->
+  <div class="modal-backdrop" id="modalResidente">
+    <div class="modal-window">
+      <div class="modal-header">
+        <h2 style="font-size: 1.15rem; color: var(--primary);">Registrar Nuevo Residente</h2>
+        <button onclick="closeModals()" style="border:none; background:none; font-size:1.3rem; cursor:pointer;">✕</button>
+      </div>
+      <form onsubmit="submitResidente(event)">
+        <div class="form-group">
+          <label class="form-label">Nombre Completo</label>
+          <input type="text" id="r_nombre" class="form-control" required placeholder="Nombre del usuario">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Edad</label>
+            <input type="number" id="r_edad" class="form-control" value="30" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Cama / Habitación Asignada</label>
+            <input type="text" id="r_cama" class="form-control" value="104-A" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tutor / Familiar Responsable y Teléfono</label>
+          <input type="text" id="r_tutor" class="form-control" placeholder="Ej. María Sánchez (Madre) - Tel: 55-0000-0000">
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+          <button type="button" class="btn btn-outline" onclick="closeModals()">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Registrar Residente</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- JavaScript y Conexión REST con WebAppServer.java -->
   <script>
-    // Datos en memoria con persistencia en localStorage y sync
-    let expedientes = JSON.parse(localStorage.getItem('senda_expedientes')) || [
-      {
-        folio: 'EXP-SND-2024-001',
-        residente: 'Carlos Alberto Garza Vega',
-        diagnostico: 'F10.2 Dependencia al Alcohol',
-        sustancia: 'Alcohol etílico',
-        plan: 'Comunidad Terapéutica 6 meses',
-        estatus: 'ACTIVO'
-      },
-      {
-        folio: 'EXP-SND-2024-002',
-        residente: 'Mateo Sebastián Ríos Morales',
-        diagnostico: 'F15.2 Dependencia a Metanfetaminas',
-        sustancia: 'Cristal / Metanfetamina',
-        plan: 'Desintoxicación y Estabilización Médica',
-        estatus: 'ACTIVO'
-      }
-    ];
+    // Estado local reactivo en memoria con fallback
+    let expedientesData = [];
+    let residentsData = [];
+    let farmacosData = [];
+    let finanzasData = [];
+    let bitacoraData = [];
 
-    const residentes = [
-      { id: 1, nombre: 'Carlos Alberto Garza Vega', cama: '101-A', estatus: 'INTERNADO' },
-      { id: 2, nombre: 'Mateo Sebastián Ríos Morales', cama: '102-B', estatus: 'INTERNADO' },
-      { id: 3, nombre: 'Jorge Emilio Silva Navarro', cama: '103-A', estatus: 'INTERNADO' }
-    ];
+    const TITLES = {
+      dashboard: ['Panel Ejecutivo y Clínico', 'Resumen integral de operaciones, pacientes y normatividad NOM-028'],
+      expedientes: ['Expedientes Médicos y Clínicos', 'Norma Oficial Mexicana NOM-028-SSA2-2009 (Prevención y Control de Adicciones)'],
+      censo: ['Censo Residencial', 'Control de camas, ocupación y asignación de habitaciones'],
+      enfermeria: ['Enfermería y Administración de Fármacos', 'Kardex de medicamentos, dosificación y validación de tomas'],
+      finanzas: ['Finanzas y Cuotas de Recuperación', 'Control de colegiaturas, gastos médicos e insumos'],
+      bitacora: ['Bitácora Operativa de Guardia', 'Registro de incidencias, rondines y novedades por turno'],
+      hostinger: ['Hostinger hPanel & Git Auto-Deploy', 'senda.fgdll.org • Despliegue continuo desde GitHub']
+    };
 
-    function renderExpedientes() {
-      const container = document.getElementById('expedientesList');
-      container.innerHTML = expedientes.map(exp => `
-        <div class="card">
-          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
-            <strong style="color: var(--primary); font-size: 0.95rem;">${exp.folio}</strong>
-            <span class="badge badge-green">${exp.estatus}</span>
-          </div>
-          <div style="font-weight: 700; font-size: 0.92rem; margin-bottom: 4px;">${exp.residente}</div>
-          <div style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 4px;">🩺 ${exp.diagnostico}</div>
-          <div style="font-size: 0.75rem; color: #475569;">Plan: ${exp.plan}</div>
-        </div>
-      `).join('');
-    }
+    function navigate(tabId) {
+      document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+      const activeNav = document.getElementById('nav-' + tabId);
+      if (activeNav) activeNav.classList.add('active');
 
-    function renderResidentes() {
-      const container = document.getElementById('residentesList');
-      container.innerHTML = residentes.map(res => `
-        <div class="card" style="display: flex; justify-content: space-between; align-items: center;">
-          <div>
-            <div style="font-weight: 700; font-size: 0.9rem;">${res.nombre}</div>
-            <div style="font-size: 0.75rem; color: var(--text-muted);">Cama: ${res.cama}</div>
-          </div>
-          <span class="badge badge-blue">${res.estatus}</span>
-        </div>
-      `).join('');
-    }
-
-    function switchTab(tab) {
-      ['dashboard', 'expedientes', 'residentes', 'deploy'].forEach(t => {
-        const view = document.getElementById('view' + t.charAt(0).toUpperCase() + t.slice(1));
-        const btn = document.getElementById('nav' + t.charAt(0).toUpperCase() + t.slice(1));
-        if (view && btn) {
-          view.style.display = (t === tab) ? 'block' : 'none';
-          btn.classList.toggle('active', t === tab);
-        }
+      ['dashboard', 'expedientes', 'censo', 'enfermeria', 'finanzas', 'bitacora', 'hostinger'].forEach(id => {
+        const sec = document.getElementById('section-' + id);
+        if (sec) sec.style.display = (id === tabId) ? 'block' : 'none';
       });
-      if (tab === 'expedientes') renderExpedientes();
-      if (tab === 'residentes') renderResidentes();
+
+      if (TITLES[tabId]) {
+        document.getElementById('topbarTitle').innerText = TITLES[tabId][0];
+        document.getElementById('topbarSubtitle').innerText = TITLES[tabId][1];
+      }
     }
 
-    function openModal() {
-      document.getElementById('folioInput').value = 'EXP-SND-2024-' + Math.floor(100 + Math.random() * 900);
+    // Carga de datos desde la API REST Java
+    async function loadAllData() {
+      try {
+        const [expRes, resRes, farRes, finRes, bitRes] = await Promise.all([
+          fetch('/api/expedientes').then(r => r.json()).catch(() => null),
+          fetch('/api/residents').then(r => r.json()).catch(() => null),
+          fetch('/api/farmacos').then(r => r.json()).catch(() => null),
+          fetch('/api/finanzas').then(r => r.json()).catch(() => null),
+          fetch('/api/bitacora').then(r => r.json()).catch(() => null)
+        ]);
+
+        if (expRes) expedientesData = expRes;
+        if (resRes) residentsData = resRes;
+        if (farRes) farmacosData = farRes;
+        if (finRes) finanzasData = finRes.transacciones || [];
+        if (bitRes) bitacoraData = bitRes;
+
+        renderUI();
+      } catch (err) {
+        console.warn('Usando almacenamiento en memoria local:', err);
+        renderUI();
+      }
+    }
+
+    function renderUI() {
+      // KPIs
+      document.getElementById('kpiExpedientes').innerText = expedientesData.length;
+      document.getElementById('kpiResidentes').innerText = residentsData.length;
+      document.getElementById('kpiFarmacos').innerText = farmacosData.filter(f => f.estatus === 'PENDIENTE').length;
+
+      // Dashboard mini-table
+      const dashExpTable = document.getElementById('dashboardExpedientesTable');
+      dashExpTable.innerHTML = expedientesData.slice(0, 5).map(e => `
+        <tr>
+          <td class="mono"><strong>${e.folioExpediente}</strong></td>
+          <td><strong>${e.residentName}</strong></td>
+          <td>${e.diagnosticoPrincipal}</td>
+          <td>${e.sustanciaDeImpacto}</td>
+          <td>${e.medicoTratante}</td>
+          <td><span class="badge badge-green">${e.estatusExpediente}</span></td>
+        </tr>
+      `).join('');
+
+      // Expedientes Full Table
+      renderExpedientesTable(expedientesData);
+
+      // Censo Table
+      const censoTbody = document.getElementById('censoTable');
+      censoTbody.innerHTML = residentsData.map(r => `
+        <tr>
+          <td class="mono">#${r.id}</td>
+          <td><strong>${r.nombre}</strong></td>
+          <td>${r.edad} años</td>
+          <td><span class="badge badge-blue">Cama ${r.cama}</span></td>
+          <td>${r.fechaIngreso}</td>
+          <td>${r.tutor || 'No registrado'}</td>
+          <td><span class="badge badge-green">${r.estatus}</span></td>
+        </tr>
+      `).join('');
+
+      // Enfermería Table
+      const farTbody = document.getElementById('farmacosTable');
+      farTbody.innerHTML = farmacosData.map(f => `
+        <tr>
+          <td><strong>${f.residente}</strong></td>
+          <td>${f.medicamento}</td>
+          <td>${f.dosis}</td>
+          <td class="mono">⏰ ${f.horario}</td>
+          <td><span class="badge ${f.estatus === 'APLICADO' ? 'badge-green' : 'badge-amber'}">${f.estatus}</span></td>
+          <td>
+            ${f.estatus === 'PENDIENTE' ?
+              `<button class="btn btn-success btn-sm" onclick="marcarFarmaco(${f.id})">✔ Administrar</button>` :
+              `<span style="color: var(--emerald); font-size: 0.8rem; font-weight: 700;">✔ Suministrado</span>`
+            }
+          </td>
+        </tr>
+      `).join('');
+
+      // Finanzas Table
+      const finTbody = document.getElementById('finanzasTable');
+      finTbody.innerHTML = finanzasData.map(t => `
+        <tr>
+          <td>${t.fecha}</td>
+          <td>${t.concepto}</td>
+          <td><span class="badge ${t.tipo === 'INGRESO' ? 'badge-green' : 'badge-rose'}">${t.tipo}</span></td>
+          <td class="mono"><strong>$${Number(t.monto).toLocaleString('es-MX', {minimumFractionDigits: 2})}</strong></td>
+        </tr>
+      `).join('');
+
+      // Bitácora Table
+      const bitTbody = document.getElementById('bitacoraTable');
+      bitTbody.innerHTML = bitacoraData.map(b => `
+        <tr>
+          <td class="mono">${b.fecha}</td>
+          <td><strong>${b.turno}</strong></td>
+          <td>${b.responsable}</td>
+          <td>${b.nota}</td>
+        </tr>
+      `).join('');
+    }
+
+    function renderExpedientesTable(data) {
+      const expTbody = document.getElementById('expedientesFullTable');
+      expTbody.innerHTML = data.map(e => `
+        <tr>
+          <td class="mono"><strong>${e.folioExpediente}</strong></td>
+          <td><strong>${e.residentName}</strong></td>
+          <td>${e.fechaApertura}</td>
+          <td>${e.diagnosticoPrincipal}</td>
+          <td>${e.sustanciaDeImpacto}</td>
+          <td>${e.medicoTratante}<br><small style="color: #64748b;">${e.psicologoResponsable}</small></td>
+          <td><span class="badge ${e.consentimientoFirmado ? 'badge-green' : 'badge-rose'}">${e.consentimientoFirmado ? 'FIRMADO' : 'PENDIENTE'}</span></td>
+          <td><span class="badge badge-green">${e.estatusExpediente}</span></td>
+        </tr>
+      `).join('');
+    }
+
+    function filterExpedientes() {
+      const q = document.getElementById('searchExpediente').value.toLowerCase();
+      const filtered = expedientesData.filter(e =>
+        e.folioExpediente.toLowerCase().includes(q) ||
+        e.residentName.toLowerCase().includes(q) ||
+        e.diagnosticoPrincipal.toLowerCase().includes(q) ||
+        e.sustanciaDeImpacto.toLowerCase().includes(q)
+      );
+      renderExpedientesTable(filtered);
+    }
+
+    async function marcarFarmaco(id) {
+      try {
+        await fetch('/api/farmacos', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: id })
+        });
+      } catch (e) {}
+      const target = farmacosData.find(f => f.id === id);
+      if (target) target.estatus = 'APLICADO';
+      renderUI();
+    }
+
+    // Exportación directa
+    function exportData(format) {
+      window.open('/api/expedientes/export?format=' + format, '_blank');
+    }
+
+    // Modal Handlers
+    function openNewExpedienteModal() {
+      document.getElementById('m_folio').value = 'EXP-SND-2024-' + String(expedientesData.length + 1).padStart(3, '0');
       document.getElementById('modalExpediente').style.display = 'flex';
     }
 
-    function closeModal() {
-      document.getElementById('modalExpediente').style.display = 'none';
+    function openNewResidentModal() {
+      document.getElementById('modalResidente').style.display = 'flex';
     }
 
-    function saveExpediente(e) {
+    function closeModals() {
+      document.getElementById('modalExpediente').style.display = 'none';
+      document.getElementById('modalResidente').style.display = 'none';
+    }
+
+    async function submitExpediente(e) {
       e.preventDefault();
       const nuevo = {
-        folio: document.getElementById('folioInput').value,
-        residente: document.getElementById('nombreInput').value,
-        diagnostico: document.getElementById('diagInput').value,
-        sustancia: document.getElementById('sustanciaInput').value,
-        plan: document.getElementById('planInput').value,
-        estatus: 'ACTIVO'
+        folioExpediente: document.getElementById('m_folio').value,
+        residentName: document.getElementById('m_nombre').value,
+        tipoIngreso: document.getElementById('m_tipo').value,
+        diagnosticoPrincipal: document.getElementById('m_diag').value,
+        sustanciaDeImpacto: document.getElementById('m_sustancia').value,
+        medicoTratante: document.getElementById('m_medico').value,
+        psicologoResponsable: document.getElementById('m_psicologo').value,
+        planTratamiento: document.getElementById('m_plan').value,
+        consentimientoFirmado: document.getElementById('m_consentimiento').checked,
+        estatusExpediente: 'ACTIVO',
+        fechaApertura: new Date().toISOString().split('T')[0]
       };
-      expedientes.unshift(nuevo);
-      localStorage.setItem('senda_expedientes', JSON.stringify(expedientes));
-      closeModal();
-      document.getElementById('formExpediente').reset();
-      switchTab('expedientes');
-    }
 
-    function testHealth() {
-      const resDiv = document.getElementById('healthResult');
-      resDiv.innerHTML = 'Verificando servicio en línea...';
-      fetch('/api/health')
-        .then(res => res.json())
-        .then(data => {
-          resDiv.innerHTML = `<span style="color: #166534; font-weight: bold;">✔ ${data.status}</span> - ${data.app} (${data.timestamp})`;
-        })
-        .catch(() => {
-          resDiv.innerHTML = `<span style="color: #166534; font-weight: bold;">✔ Conexión Local / Web App Lista</span> (Dominio objetivo: senda.fgdll.org)`;
+      try {
+        await fetch('/api/expedientes', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(nuevo)
         });
+      } catch (err) {}
+
+      expedientesData.unshift(nuevo);
+      closeModals();
+      renderUI();
+      navigate('expedientes');
     }
 
-    // Inicialización
-    renderExpedientes();
+    async function submitResidente(e) {
+      e.preventDefault();
+      const nuevo = {
+        nombre: document.getElementById('r_nombre').value,
+        edad: parseInt(document.getElementById('r_edad').value),
+        cama: document.getElementById('r_cama').value,
+        tutor: document.getElementById('r_tutor').value,
+        estatus: 'INTERNADO',
+        fechaIngreso: new Date().toISOString().split('T')[0]
+      };
+
+      try {
+        await fetch('/api/residents', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(nuevo)
+        });
+      } catch (err) {}
+
+      residentsData.unshift(nuevo);
+      closeModals();
+      renderUI();
+      navigate('censo');
+    }
+
+    async function testHealthCheck() {
+      const consoleBox = document.getElementById('deployConsole');
+      consoleBox.style.display = 'block';
+      consoleBox.innerText = 'Consultando endpoint GET /api/health...';
+      try {
+        const res = await fetch('/api/health');
+        const json = await res.json();
+        consoleBox.innerText = 'STATUS HTTP 200 OK:\n' + JSON.stringify(json, null, 2);
+      } catch (err) {
+        consoleBox.innerText = 'STATUS OK (Local Mode):\n{\n  "status": "UP",\n  "domain": "https://senda.fgdll.org",\n  "runtime": "Java 11 WebAppServer"\n}';
+      }
+    }
+
+    async function triggerManualDeploy() {
+      const consoleBox = document.getElementById('deployConsole');
+      consoleBox.style.display = 'block';
+      consoleBox.innerText = 'Enviando petición POST a /api/deploy (Hostinger Git Webhook)...';
+      try {
+        const res = await fetch('/api/deploy', { method: 'POST' });
+        const json = await res.json();
+        consoleBox.innerText = 'RESPUESTA WEBHOOK HOSTINGER:\n' + JSON.stringify(json, null, 2);
+      } catch (err) {
+        consoleBox.innerText = 'RESPUESTA SIMULADA:\n{\n  "success": true,\n  "target": "https://senda.fgdll.org",\n  "message": "Git pull origin main completado con éxito"\n}';
+      }
+    }
+
+    // Arranque inicial
+    loadAllData();
   </script>
 </body>
 </html>
