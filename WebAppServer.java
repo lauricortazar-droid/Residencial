@@ -33,6 +33,10 @@ public class WebAppServer {
     private static final List<Map<String, Object>> farmacosStore = new CopyOnWriteArrayList<>();
     private static final List<Map<String, Object>> finanzasStore = new CopyOnWriteArrayList<>();
     private static final List<Map<String, Object>> bitacoraStore = new CopyOnWriteArrayList<>();
+    private static final List<Map<String, Object>> agendaStore = new CopyOnWriteArrayList<>();
+    private static final List<Map<String, Object>> staffStore = new CopyOnWriteArrayList<>();
+    private static final List<Map<String, Object>> familiasStore = new CopyOnWriteArrayList<>();
+    private static final List<Map<String, Object>> evidenciasStore = new CopyOnWriteArrayList<>();
 
     static {
         // Semilla inicial de datos para la Web App (NOM-028)
@@ -147,6 +151,139 @@ public class WebAppServer {
         bit1.put("nota", "Pase de lista sin novedades. Residentes en sesión de psicoterapia grupal.");
         bit1.put("fecha", "2024-03-29 08:30");
         bitacoraStore.add(bit1);
+
+        // Agenda y Terapias
+        Map<String, Object> ag1 = new LinkedHashMap<>();
+        ag1.put("id", 1);
+        ag1.put("titulo", "Sesión de Psicoterapia Individual");
+        ag1.put("tipo", "TERAPIA_PSICOLOGICA");
+        ag1.put("fecha", "2024-03-30");
+        ag1.put("hora", "10:00");
+        ag1.put("lugar", "Consultorio 1 - Psicología");
+        ag1.put("responsable", "Lic. Elena Cárdenas");
+        ag1.put("residente", "Carlos Alberto Garza Vega");
+        agendaStore.add(ag1);
+
+        Map<String, Object> ag2 = new LinkedHashMap<>();
+        ag2.put("id", 2);
+        ag2.put("titulo", "Terapia Grupal de Doce Pasos");
+        ag2.put("tipo", "ACTIVIDAD_GRUPO");
+        ag2.put("fecha", "2024-03-30");
+        ag2.put("hora", "16:00");
+        ag2.put("lugar", "Salón Terapéutico Principal");
+        ag2.put("responsable", "Lic. Carlos Méndez (Consejero)");
+        ag2.put("residente", "Todos los Residentes");
+        agendaStore.add(ag2);
+
+        Map<String, Object> ag3 = new LinkedHashMap<>();
+        ag3.put("id", 3);
+        ag3.put("titulo", "Visita Familiar Semanal Programada");
+        ag3.put("tipo", "VISITA_FAMILIAR");
+        ag3.put("fecha", "2024-03-31");
+        ag3.put("hora", "11:00");
+        ag3.put("lugar", "Jardín Central y Terraza");
+        ag3.put("responsable", "Trabajo Social y Seguridad");
+        ag3.put("residente", "Familiares Autorizados");
+        agendaStore.add(ag3);
+
+        // Personal y Staff
+        Map<String, Object> st1 = new LinkedHashMap<>();
+        st1.put("id", 1);
+        st1.put("nombre", "Dr. Armando Valdés Soto");
+        st1.put("rol", "Médico Cirujano y Director Médico");
+        st1.put("categoria", "MEDICINA");
+        st1.put("telefono", "55-4819-2030");
+        st1.put("email", "dr.valdes@senda.fgdll.org");
+        st1.put("turno", "Matutino");
+        st1.put("cedula", "4819203");
+        staffStore.add(st1);
+
+        Map<String, Object> st2 = new LinkedHashMap<>();
+        st2.put("id", 2);
+        st2.put("nombre", "Lic. Elena Cárdenas Ruiz");
+        st2.put("rol", "Psicóloga Clínica y Adicciones");
+        st2.put("categoria", "PSICOLOGIA");
+        st2.put("telefono", "55-8192-3010");
+        st2.put("email", "psic.cardenas@senda.fgdll.org");
+        st2.put("turno", "Mixto");
+        st2.put("cedula", "8192301");
+        staffStore.add(st2);
+
+        Map<String, Object> st3 = new LinkedHashMap<>();
+        st3.put("id", 3);
+        st3.put("nombre", "Enf. Rodrigo Montes Morales");
+        st3.put("rol", "Enfermero Encargado de Fármacos");
+        st3.put("categoria", "ENFERMERIA");
+        st3.put("telefono", "55-9210-3440");
+        st3.put("email", "enf.montes@senda.fgdll.org");
+        st3.put("turno", "Matutino");
+        st3.put("cedula", "9210344");
+        staffStore.add(st3);
+
+        Map<String, Object> st4 = new LinkedHashMap<>();
+        st4.put("id", 4);
+        st4.put("nombre", "Lic. Carlos Méndez");
+        st4.put("rol", "Consejero Certificado en Adicciones");
+        st4.put("categoria", "CONSEJERIA");
+        st4.put("telefono", "55-7766-5544");
+        st4.put("email", "consejeria@senda.fgdll.org");
+        st4.put("turno", "Vespertino");
+        st4.put("cedula", "Cert. CONADIC-2021");
+        staffStore.add(st4);
+
+        // Familias y Tutores
+        Map<String, Object> fam1 = new LinkedHashMap<>();
+        fam1.put("id", 1);
+        fam1.put("tutor", "Martha Vega");
+        fam1.put("parentesco", "Madre");
+        fam1.put("residente", "Carlos Alberto Garza Vega");
+        fam1.put("telefono", "55-4123-8890");
+        fam1.put("visitasAutorizadas", true);
+        fam1.put("diaVisita", "Sábados y Domingos (11:00 - 14:00)");
+        fam1.put("notas", "Tutor legal firmante del contrato y consentimiento NOM-028.");
+        familiasStore.add(fam1);
+
+        Map<String, Object> fam2 = new LinkedHashMap<>();
+        fam2.put("id", 2);
+        fam2.put("tutor", "Esteban Ríos");
+        fam2.put("parentesco", "Hermano");
+        fam2.put("residente", "Mateo Sebastián Ríos Morales");
+        fam2.put("telefono", "55-9871-2345");
+        fam2.put("visitasAutorizadas", true);
+        fam2.put("diaVisita", "Domingos (12:00 - 15:00)");
+        fam2.put("notas", "Autorizado para llamadas semanales los miércoles.");
+        familiasStore.add(fam2);
+
+        // Documentos y Evidencias NOM-028
+        Map<String, Object> ev1 = new LinkedHashMap<>();
+        ev1.put("id", 1);
+        ev1.put("residente", "Carlos Alberto Garza Vega");
+        ev1.put("tipo", "ANTIDOPING_6_PANEL");
+        ev1.put("resultado", "NEGATIVO");
+        ev1.put("fecha", "2024-03-25");
+        ev1.put("responsable", "Enf. Rodrigo Montes");
+        ev1.put("observaciones", "Panel de 6 drogas negativo (THC, COC, MET, AMP, BZO, OPI). Residente estable.");
+        evidenciasStore.add(ev1);
+
+        Map<String, Object> ev2 = new LinkedHashMap<>();
+        ev2.put("id", 2);
+        ev2.put("residente", "Carlos Alberto Garza Vega");
+        ev2.put("tipo", "CONSENTIMIENTO_INFORMADO_NOM028");
+        ev2.put("resultado", "RATIFICADO_FIRMADO");
+        ev2.put("fecha", "2024-01-15");
+        ev2.put("responsable", "Dr. Armando Valdés Soto");
+        ev2.put("observaciones", "Firmado por usuario y tutor Martha Vega conforme al Art. 13 de la NOM-028-SSA2.");
+        evidenciasStore.add(ev2);
+
+        Map<String, Object> ev3 = new LinkedHashMap<>();
+        ev3.put("id", 3);
+        ev3.put("residente", "Mateo Sebastián Ríos Morales");
+        ev3.put("tipo", "ANTIDOPING_INGRESO");
+        ev3.put("resultado", "POSITIVO_METANFETAMINA");
+        ev3.put("fecha", "2024-02-01");
+        ev3.put("responsable", "Dr. Armando Valdés Soto");
+        ev3.put("observaciones", "Prueba de tamizaje inicial positiva a metanfetaminas. Protocolo de desintoxicación activado.");
+        evidenciasStore.add(ev3);
     }
 
     public static void main(String[] args) throws IOException {
@@ -177,6 +314,10 @@ public class WebAppServer {
         server.createContext("/api/farmacos", new FarmacosApiHandler());
         server.createContext("/api/finanzas", new FinanzasApiHandler());
         server.createContext("/api/bitacora", new BitacoraApiHandler());
+        server.createContext("/api/agenda", new AgendaApiHandler());
+        server.createContext("/api/staff", new StaffApiHandler());
+        server.createContext("/api/familias", new FamiliasApiHandler());
+        server.createContext("/api/evidencias", new EvidenciasApiHandler());
 
         server.setExecutor(java.util.concurrent.Executors.newCachedThreadPool());
         server.start();
@@ -455,6 +596,97 @@ public class WebAppServer {
                 nota.put("fecha", new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(new Date()));
                 bitacoraStore.add(0, nota);
                 sendJsonResponse(exchange, 201, "{\"success\":true,\"message\":\"Nota de guardia registrada\"}");
+            } else {
+                exchange.sendResponseHeaders(405, -1);
+            }
+        }
+    }
+
+    /**
+     * API REST de Agenda y Terapias
+     */
+    static class AgendaApiHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange exchange) throws IOException {
+            setCORS(exchange);
+            String method = exchange.getRequestMethod().toUpperCase();
+            if ("GET".equals(method)) {
+                sendJsonResponse(exchange, 200, toJson(agendaStore));
+            } else if ("POST".equals(method)) {
+                String body = readBody(exchange);
+                Map<String, Object> item = parseJsonMap(body);
+                item.put("id", agendaStore.size() + 1);
+                agendaStore.add(0, item);
+                sendJsonResponse(exchange, 201, "{\"success\":true,\"message\":\"Evento de agenda registrado\"}");
+            } else {
+                exchange.sendResponseHeaders(405, -1);
+            }
+        }
+    }
+
+    /**
+     * API REST de Personal y Staff Clínico
+     */
+    static class StaffApiHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange exchange) throws IOException {
+            setCORS(exchange);
+            String method = exchange.getRequestMethod().toUpperCase();
+            if ("GET".equals(method)) {
+                sendJsonResponse(exchange, 200, toJson(staffStore));
+            } else if ("POST".equals(method)) {
+                String body = readBody(exchange);
+                Map<String, Object> item = parseJsonMap(body);
+                item.put("id", staffStore.size() + 1);
+                staffStore.add(item);
+                sendJsonResponse(exchange, 201, "{\"success\":true,\"message\":\"Personal registrado\"}");
+            } else {
+                exchange.sendResponseHeaders(405, -1);
+            }
+        }
+    }
+
+    /**
+     * API REST de Familias y Tutores
+     */
+    static class FamiliasApiHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange exchange) throws IOException {
+            setCORS(exchange);
+            String method = exchange.getRequestMethod().toUpperCase();
+            if ("GET".equals(method)) {
+                sendJsonResponse(exchange, 200, toJson(familiasStore));
+            } else if ("POST".equals(method)) {
+                String body = readBody(exchange);
+                Map<String, Object> item = parseJsonMap(body);
+                item.put("id", familiasStore.size() + 1);
+                familiasStore.add(0, item);
+                sendJsonResponse(exchange, 201, "{\"success\":true,\"message\":\"Familiar / Tutor registrado\"}");
+            } else {
+                exchange.sendResponseHeaders(405, -1);
+            }
+        }
+    }
+
+    /**
+     * API REST de Documentos y Evidencias NOM-028 (Antidopings, Consentimientos)
+     */
+    static class EvidenciasApiHandler implements HttpHandler {
+        @Override
+        public void handle(HttpExchange exchange) throws IOException {
+            setCORS(exchange);
+            String method = exchange.getRequestMethod().toUpperCase();
+            if ("GET".equals(method)) {
+                sendJsonResponse(exchange, 200, toJson(evidenciasStore));
+            } else if ("POST".equals(method)) {
+                String body = readBody(exchange);
+                Map<String, Object> item = parseJsonMap(body);
+                item.put("id", evidenciasStore.size() + 1);
+                if (!item.containsKey("fecha")) {
+                    item.put("fecha", new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date()));
+                }
+                evidenciasStore.add(0, item);
+                sendJsonResponse(exchange, 201, "{\"success\":true,\"message\":\"Evidencia NOM-028 registrada\"}");
             } else {
                 exchange.sendResponseHeaders(405, -1);
             }

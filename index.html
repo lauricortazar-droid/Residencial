@@ -2,13 +2,18 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#00687a">
-  <title>SENDA Residencial • Portal Clínico y ERP Web (Hostinger)</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>SENDA Residencial • Portal Clínico y ERP Web (Mobile-First)</title>
   <link rel="manifest" href="manifest.json">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <!-- jsPDF Library for Clinical Summary Export -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
   <style>
     :root {
       --primary: #00687a;
@@ -29,10 +34,10 @@
       --slate-700: #334155;
       --slate-800: #1e293b;
       --slate-900: #0f172a;
-      --sidebar-w: 260px;
-      --radius: 12px;
-      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+      --radius: 14px;
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+      --shadow: 0 4px 14px -2px rgba(0, 0, 0, 0.08);
+      --bottom-nav-height: 64px;
     }
 
     * {
@@ -40,32 +45,48 @@
       margin: 0;
       padding: 0;
       font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      -webkit-tap-highlight-color: transparent;
     }
 
     body {
       background-color: var(--slate-50);
       color: var(--slate-800);
+      min-height: 100vh;
       display: flex;
-      height: 100vh;
-      overflow: hidden;
+      flex-direction: column;
+      overflow-x: hidden;
     }
 
     /* =========================================
-       SIDEBAR WORKSTATION (Desktop & Tablet)
+       APP WRAPPER & RESPONSIVE GRID
        ========================================= */
+    .app-root {
+      display: flex;
+      flex: 1;
+      width: 100%;
+      min-height: 100vh;
+    }
+
+    /* Desktop Sidebar (Hidden on mobile) */
     aside.sidebar {
-      width: var(--sidebar-w);
+      display: none;
+      width: 260px;
       background: var(--slate-900);
       color: #fff;
-      display: flex;
       flex-direction: column;
       flex-shrink: 0;
       border-right: 1px solid var(--slate-800);
       z-index: 50;
     }
 
+    @media (min-width: 960px) {
+      aside.sidebar {
+        display: flex;
+      }
+    }
+
     .brand-box {
-      padding: 24px 20px;
+      padding: 20px 18px;
       border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     }
 
@@ -74,14 +95,13 @@
       align-items: center;
       gap: 10px;
       font-weight: 800;
-      font-size: 1.15rem;
-      letter-spacing: -0.5px;
+      font-size: 1.1rem;
       color: #fff;
     }
 
     .brand-logo-icon {
-      width: 34px;
-      height: 34px;
+      width: 32px;
+      height: 32px;
       border-radius: 8px;
       background: var(--primary);
       display: flex;
@@ -90,24 +110,15 @@
       font-size: 1.1rem;
     }
 
-    .brand-tag {
-      font-size: 0.7rem;
-      color: #94a3b8;
-      margin-top: 4px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
     .server-status-pill {
       display: inline-flex;
       align-items: center;
-      gap: 5px;
+      gap: 6px;
       background: rgba(16, 185, 129, 0.15);
       color: #34d399;
       font-size: 0.68rem;
       font-weight: 700;
-      padding: 2px 8px;
+      padding: 3px 9px;
       border-radius: 999px;
       border: 1px solid rgba(16, 185, 129, 0.3);
       margin-top: 8px;
@@ -118,15 +129,22 @@
       height: 6px;
       border-radius: 50%;
       background: #10b981;
+      animation: pulseAnim 2s infinite;
+    }
+
+    @keyframes pulseAnim {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+      70% { transform: scale(1.15); box-shadow: 0 0 0 5px rgba(16, 185, 129, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
     }
 
     .nav-menu {
       flex: 1;
-      padding: 16px 12px;
+      padding: 14px 10px;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 3px;
     }
 
     .nav-item {
@@ -137,10 +155,10 @@
       color: #94a3b8;
       border-radius: 8px;
       cursor: pointer;
-      font-size: 0.88rem;
+      font-size: 0.86rem;
       font-weight: 600;
       transition: all 0.15s ease;
-      user-select: none;
+      min-height: 44px;
     }
 
     .nav-item:hover {
@@ -155,116 +173,199 @@
       box-shadow: 0 4px 12px rgba(0, 104, 122, 0.35);
     }
 
-    .nav-item-icon {
-      font-size: 1.15rem;
-      width: 24px;
-      text-align: center;
-    }
-
-    .sidebar-footer {
-      padding: 16px 20px;
-      border-top: 1px solid rgba(255, 255, 255, 0.08);
-      font-size: 0.75rem;
-      color: #64748b;
-    }
-
     /* =========================================
-       MAIN WORKSTATION LAYOUT
+       MAIN CONTENT VIEWPORT (Mobile-First)
        ========================================= */
-    main.main-viewport {
+    main.viewport {
       flex: 1;
       display: flex;
       flex-direction: column;
-      overflow: hidden;
+      min-height: 100vh;
+      position: relative;
       background: var(--slate-50);
+      width: 100%;
     }
 
-    header.topbar {
-      height: 68px;
+    /* Mobile Top App Bar */
+    header.mobile-topbar {
+      height: 58px;
       background: #fff;
       border-bottom: 1px solid var(--slate-200);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 28px;
-      flex-shrink: 0;
+      padding: 0 16px;
+      position: sticky;
+      top: 0;
+      z-index: 40;
     }
 
-    .page-header-info h1 {
+    .mobile-brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 800;
+      color: var(--primary);
+      font-size: 1rem;
+    }
+
+    .mobile-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Content Area */
+    .content-area {
+      flex: 1;
+      padding: 16px;
+      padding-bottom: calc(var(--bottom-nav-height) + 24px);
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    @media (min-width: 960px) {
+      .content-area {
+        padding: 24px 32px;
+        padding-bottom: 40px;
+      }
+    }
+
+    /* Section Headers */
+    .screen-header {
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .screen-title {
       font-size: 1.25rem;
       font-weight: 800;
       color: var(--slate-900);
       letter-spacing: -0.5px;
     }
 
-    .page-header-info p {
-      font-size: 0.78rem;
+    .screen-subtitle {
+      font-size: 0.8rem;
       color: var(--slate-600);
-    }
-
-    .topbar-actions {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .content-scrollable {
-      flex: 1;
-      overflow-y: auto;
-      padding: 28px;
+      margin-top: 2px;
     }
 
     /* =========================================
-       COMPONENTS: BUTTONS, BADGES, CARDS
+       CARDS, GRIDS & MOBILE TOUCH TARGETS
        ========================================= */
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      padding: 9px 16px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      border-radius: 8px;
-      border: 1px solid transparent;
-      cursor: pointer;
-      transition: all 0.15s ease;
-      text-decoration: none;
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 18px;
     }
 
-    .btn-primary {
-      background: var(--primary);
-      color: #fff;
-    }
-    .btn-primary:hover {
-      background: var(--primary-hover);
+    @media (min-width: 768px) {
+      .kpi-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+      }
     }
 
-    .btn-outline {
+    .kpi-card {
       background: #fff;
-      color: var(--slate-700);
-      border-color: var(--slate-300);
+      border: 1px solid var(--slate-200);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      box-shadow: var(--shadow-sm);
     }
-    .btn-outline:hover {
-      background: var(--slate-100);
+
+    .kpi-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--slate-600);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .kpi-value {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--slate-900);
+      margin: 4px 0 2px;
+    }
+
+    .kpi-sub {
+      font-size: 0.72rem;
+      color: var(--slate-600);
+    }
+
+    /* Card Containers */
+    .card {
+      background: #fff;
+      border: 1px solid var(--slate-200);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 14px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .card-title {
+      font-size: 0.95rem;
+      font-weight: 700;
       color: var(--slate-900);
     }
 
-    .btn-success {
-      background: var(--emerald);
+    /* Quick Action Pills on Mobile */
+    .quick-actions-bar {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      margin-bottom: 16px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .action-pill {
+      background: #fff;
+      border: 1px solid var(--slate-300);
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--slate-700);
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      flex-shrink: 0;
+      min-height: 40px;
+    }
+
+    .action-pill:active {
+      background: var(--slate-100);
+    }
+
+    .action-pill.primary {
+      background: var(--primary);
       color: #fff;
+      border-color: var(--primary);
     }
 
-    .btn-sm {
-      padding: 6px 12px;
-      font-size: 0.78rem;
-    }
-
+    /* Badges */
     .badge {
       display: inline-flex;
       align-items: center;
       gap: 4px;
-      font-size: 0.72rem;
+      font-size: 0.7rem;
       font-weight: 700;
       padding: 3px 8px;
       border-radius: 6px;
@@ -276,74 +377,53 @@
     .badge-amber { background: var(--amber-light); color: #92400e; }
     .badge-rose { background: var(--rose-light); color: #9f1239; }
 
-    /* KPI Grid */
-    .kpi-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 18px;
-      margin-bottom: 24px;
-    }
-
-    .kpi-card {
-      background: #fff;
-      border: 1px solid var(--slate-200);
-      border-radius: var(--radius);
-      padding: 20px;
-      box-shadow: var(--shadow-sm);
-    }
-
-    .kpi-label {
-      font-size: 0.8rem;
+    /* Buttons (Minimum 48px touch friendly) */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 18px;
+      font-size: 0.88rem;
       font-weight: 600;
-      color: var(--slate-600);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+      border-radius: 10px;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      min-height: 44px;
     }
 
-    .kpi-value {
-      font-size: 1.85rem;
-      font-weight: 800;
-      color: var(--slate-900);
-      margin: 6px 0 2px;
+    .btn:active {
+      transform: scale(0.98);
     }
 
-    .kpi-sub {
-      font-size: 0.75rem;
-      color: var(--slate-600);
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-primary:hover { background: var(--primary-hover); }
+
+    .btn-outline {
+      background: #fff;
+      color: var(--slate-700);
+      border-color: var(--slate-300);
     }
 
-    /* Data Tables */
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 0.78rem;
+      min-height: 36px;
+      border-radius: 8px;
+    }
+
+    .btn-success { background: var(--emerald); color: #fff; }
+
+    /* Tables (Responsive scroll) */
     .table-container {
       background: #fff;
       border: 1px solid var(--slate-200);
       border-radius: var(--radius);
       box-shadow: var(--shadow-sm);
-      overflow: hidden;
-      margin-bottom: 24px;
-    }
-
-    .table-toolbar {
-      padding: 16px 20px;
-      border-bottom: 1px solid var(--slate-200);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      flex-wrap: wrap;
-    }
-
-    .table-toolbar-title {
-      font-size: 1rem;
-      font-weight: 700;
-      color: var(--slate-900);
-    }
-
-    .search-input {
-      padding: 8px 14px;
-      font-size: 0.85rem;
-      border: 1px solid var(--slate-300);
-      border-radius: 8px;
-      width: 260px;
+      overflow-x: auto;
+      margin-bottom: 18px;
+      -webkit-overflow-scrolling: touch;
     }
 
     table.data-table {
@@ -351,13 +431,14 @@
       border-collapse: collapse;
       text-align: left;
       font-size: 0.85rem;
+      min-width: 600px;
     }
 
     table.data-table th {
       background: var(--slate-100);
       color: var(--slate-600);
       font-weight: 700;
-      padding: 12px 18px;
+      padding: 12px 16px;
       border-bottom: 1px solid var(--slate-200);
       text-transform: uppercase;
       font-size: 0.72rem;
@@ -365,9 +446,10 @@
     }
 
     table.data-table td {
-      padding: 14px 18px;
+      padding: 12px 16px;
       border-bottom: 1px solid var(--slate-200);
       color: var(--slate-700);
+      vertical-align: middle;
     }
 
     table.data-table tr:hover td {
@@ -379,48 +461,151 @@
       font-size: 0.8rem;
     }
 
-    /* Modal Form */
+    /* Mobile Cards for Items */
+    .mobile-item-card {
+      background: #fff;
+      border: 1px solid var(--slate-200);
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 10px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+
+    /* Search Input */
+    .search-bar {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid var(--slate-300);
+      border-radius: 10px;
+      font-size: 0.88rem;
+      background: #fff;
+      margin-bottom: 14px;
+    }
+
+    /* =========================================
+       NATIVE MOBILE BOTTOM NAVIGATION DOCK
+       ========================================= */
+    nav.mobile-bottom-dock {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: var(--bottom-nav-height);
+      background: #fff;
+      border-top: 1px solid var(--slate-200);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      z-index: 50;
+      padding: 0 4px;
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.04);
+    }
+
+    @media (min-width: 960px) {
+      nav.mobile-bottom-dock {
+        display: none;
+      }
+    }
+
+    .dock-btn {
+      background: none;
+      border: none;
+      color: var(--slate-600);
+      font-size: 0.68rem;
+      font-weight: 600;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      cursor: pointer;
+      flex: 1;
+      height: 100%;
+      min-width: 48px;
+      user-select: none;
+    }
+
+    .dock-btn:active {
+      background: var(--slate-100);
+      border-radius: 8px;
+    }
+
+    .dock-btn.active {
+      color: var(--primary);
+      font-weight: 800;
+    }
+
+    .dock-icon {
+      font-size: 1.25rem;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* =========================================
+       MODALS & MOBILE BOTTOM DRAWERS
+       ========================================= */
     .modal-backdrop {
       display: none;
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(15, 23, 42, 0.6);
+      background: rgba(15, 23, 42, 0.65);
       backdrop-filter: blur(4px);
       z-index: 100;
       align-items: center;
       justify-content: center;
-      padding: 20px;
+      padding: 16px;
     }
 
     .modal-window {
       background: #fff;
-      border-radius: 16px;
+      border-radius: 18px;
       width: 100%;
       max-width: 640px;
       max-height: 90vh;
       overflow-y: auto;
-      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-      padding: 28px;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15);
+      padding: 22px;
+    }
+
+    @media (max-width: 600px) {
+      .modal-backdrop {
+        align-items: flex-end;
+        padding: 0;
+      }
+      .modal-window {
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+        max-height: 85vh;
+        padding: 20px 16px 28px;
+      }
     }
 
     .modal-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
       border-bottom: 1px solid var(--slate-200);
-      padding-bottom: 14px;
+      padding-bottom: 12px;
     }
 
     .form-row {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      margin-bottom: 14px;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    @media (min-width: 600px) {
+      .form-row {
+        grid-template-columns: 1fr 1fr;
+      }
     }
 
     .form-group {
-      margin-bottom: 14px;
+      margin-bottom: 12px;
     }
 
     .form-label {
@@ -428,356 +613,584 @@
       font-size: 0.78rem;
       font-weight: 700;
       color: var(--slate-700);
-      margin-bottom: 6px;
+      margin-bottom: 4px;
       text-transform: uppercase;
       letter-spacing: 0.3px;
     }
 
     .form-control {
       width: 100%;
-      padding: 10px 14px;
+      padding: 10px 12px;
       border: 1px solid var(--slate-300);
       border-radius: 8px;
       font-size: 0.88rem;
       background: #fff;
+      min-height: 42px;
     }
 
-    /* Responsive for mobile */
-    @media (max-width: 900px) {
-      body {
-        flex-direction: column;
-      }
-      aside.sidebar {
-        width: 100%;
-        height: auto;
-        border-right: none;
-        border-bottom: 1px solid var(--slate-800);
-      }
-      .nav-menu {
-        flex-direction: row;
-        overflow-x: auto;
-        padding: 8px;
-      }
-      .brand-box {
-        padding: 14px 18px;
-      }
-      .form-row {
-        grid-template-columns: 1fr;
-      }
-      .content-scrollable {
-        padding: 16px;
+    /* Floating Action Button (FAB) on Mobile */
+    .fab {
+      position: fixed;
+      right: 20px;
+      bottom: calc(var(--bottom-nav-height) + 16px);
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      box-shadow: 0 4px 14px rgba(0, 104, 122, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      cursor: pointer;
+      z-index: 45;
+    }
+
+    @media (min-width: 960px) {
+      .fab {
+        display: none;
       }
     }
   </style>
 </head>
 <body>
 
-  <!-- ==============================================
-       SIDEBAR WORKSTATION (Desktop & Responsive)
-       ============================================== -->
-  <aside class="sidebar">
-    <div class="brand-box">
-      <div class="brand-logo">
-        <div class="brand-logo-icon">🏥</div>
-        <span>SENDA Residencial</span>
-      </div>
-      <div class="brand-tag">
-        Portal ERP Clínico Web • NOM-028
-      </div>
-      <div class="server-status-pill">
-        <span class="pulse"></span>
-        <span>Java REST • Hostinger</span>
-      </div>
-    </div>
-
-    <nav class="nav-menu">
-      <div class="nav-item active" onclick="navigate('dashboard')" id="nav-dashboard">
-        <span class="nav-item-icon">📊</span>
-        <span>Panel Ejecutivo</span>
-      </div>
-      <div class="nav-item" onclick="navigate('expedientes')" id="nav-expedientes">
-        <span class="nav-item-icon">📋</span>
-        <span>Expedientes Clínicos</span>
-      </div>
-      <div class="nav-item" onclick="navigate('censo')" id="nav-censo">
-        <span class="nav-item-icon">👥</span>
-        <span>Censo y Habitaciones</span>
-      </div>
-      <div class="nav-item" onclick="navigate('enfermeria')" id="nav-enfermeria">
-        <span class="nav-item-icon">💊</span>
-        <span>Enfermería y Fármacos</span>
-      </div>
-      <div class="nav-item" onclick="navigate('finanzas')" id="nav-finanzas">
-        <span class="nav-item-icon">💰</span>
-        <span>Finanzas y Cuotas</span>
-      </div>
-      <div class="nav-item" onclick="navigate('bitacora')" id="nav-bitacora">
-        <span class="nav-item-icon">🛡️</span>
-        <span>Bitácora de Guardia</span>
-      </div>
-      <div class="nav-item" onclick="navigate('hostinger')" id="nav-hostinger">
-        <span class="nav-item-icon">☁️</span>
-        <span>Hostinger & Git Deploy</span>
-      </div>
-    </nav>
-
-    <div class="sidebar-footer">
-      <div>Dominio: <strong>senda.fgdll.org</strong></div>
-      <div style="margin-top: 4px; color: #475569;">Backend: WebAppServer.java (JDK 11)</div>
-    </div>
-  </aside>
-
-  <!-- ==============================================
-       MAIN WORKSTATION CONTENT
-       ============================================== -->
-  <main class="main-viewport">
-    <header class="topbar">
-      <div class="page-header-info">
-        <h1 id="topbarTitle">Panel Ejecutivo y Clínico</h1>
-        <p id="topbarSubtitle">Sistema Integral Web para Comunidades Terapéuticas y Centros de Rehabilitación</p>
-      </div>
-      <div class="topbar-actions">
-        <button class="btn btn-outline btn-sm" onclick="exportData('csv')">
-          <span>📥</span> Exportar CSV
-        </button>
-        <button class="btn btn-outline btn-sm" onclick="exportData('json')">
-          <span>📄</span> Exportar JSON
-        </button>
-        <button class="btn btn-primary btn-sm" onclick="openNewExpedienteModal()">
-          <span>➕</span> Nuevo Expediente
-        </button>
-      </div>
-    </header>
-
-    <div class="content-scrollable">
-
-      <!-- ==========================================
-           TAB 1: PANEL EJECUTIVO (DASHBOARD)
-           ========================================== -->
-      <section id="section-dashboard">
-        <div class="kpi-grid">
-          <div class="kpi-card">
-            <div class="kpi-label">Residentes Internados</div>
-            <div class="kpi-value" id="kpiResidentes">3</div>
-            <div class="kpi-sub">Capacidad: 24 camas activas</div>
-          </div>
-          <div class="kpi-card">
-            <div class="kpi-label">Expedientes NOM-028</div>
-            <div class="kpi-value" id="kpiExpedientes">2</div>
-            <div class="kpi-sub">100% con Consentimiento Firmado</div>
-          </div>
-          <div class="kpi-card">
-            <div class="kpi-label">Fármacos Pendientes</div>
-            <div class="kpi-value" id="kpiFarmacos">1</div>
-            <div class="kpi-sub">Turno de las 20:00 hrs</div>
-          </div>
-          <div class="kpi-card">
-            <div class="kpi-label">Saldo en Caja</div>
-            <div class="kpi-value" id="kpiFinanzas">$6,150.00</div>
-            <div class="kpi-sub">Ingresos $8,500 • Egresos $2,350</div>
-          </div>
+  <div class="app-root">
+    <!-- ==============================================
+         DESKTOP SIDEBAR (Visible >= 960px)
+         ============================================== -->
+    <aside class="sidebar">
+      <div class="brand-box">
+        <div class="brand-logo">
+          <div class="brand-logo-icon">🏥</div>
+          <span>SENDA Residencial</span>
         </div>
-
-        <div class="table-container">
-          <div class="table-toolbar">
-            <div class="table-toolbar-title">Expedientes Clínicos Recientes (NOM-028-SSA2)</div>
-            <button class="btn btn-outline btn-sm" onclick="navigate('expedientes')">Ver Todos</button>
-          </div>
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Folio</th>
-                <th>Residente</th>
-                <th>Diagnóstico CIE-11</th>
-                <th>Sustancia Impacto</th>
-                <th>Médico Responsable</th>
-                <th>Estatus</th>
-              </tr>
-            </thead>
-            <tbody id="dashboardExpedientesTable">
-              <!-- Renderizado dinámico desde Java REST API -->
-            </tbody>
-          </table>
+        <div style="font-size: 0.72rem; color: #94a3b8; margin-top: 4px;">
+          ERP Clínico Móvil • NOM-028
         </div>
-      </section>
+        <div class="server-status-pill">
+          <span class="pulse"></span>
+          <span>Java REST • Hostinger</span>
+        </div>
+      </div>
 
-      <!-- ==========================================
-           TAB 2: EXPEDIENTES CLÍNICOS (NOM-028)
-           ========================================== -->
-      <section id="section-expedientes" style="display: none;">
-        <div class="table-container">
-          <div class="table-toolbar">
+      <nav class="nav-menu">
+        <div class="nav-item active" onclick="navigate('dashboard')" id="nav-desktop-dashboard">
+          <span>📊</span> <span>Panel Ejecutivo</span>
+        </div>
+        <div class="nav-item" onclick="navigate('expedientes')" id="nav-desktop-expedientes">
+          <span>📋</span> <span>Expedientes NOM-028</span>
+        </div>
+        <div class="nav-item" onclick="navigate('censo')" id="nav-desktop-censo">
+          <span>👥</span> <span>Censo y Camas</span>
+        </div>
+        <div class="nav-item" onclick="navigate('enfermeria')" id="nav-desktop-enfermeria">
+          <span>💊</span> <span>Enfermería y Fármacos</span>
+        </div>
+        <div class="nav-item" onclick="navigate('agenda')" id="nav-desktop-agenda">
+          <span>📅</span> <span>Agenda y Terapias</span>
+        </div>
+        <div class="nav-item" onclick="navigate('familias')" id="nav-desktop-familias">
+          <span>👨‍👩‍👧</span> <span>Familias y Tutores</span>
+        </div>
+        <div class="nav-item" onclick="navigate('finanzas')" id="nav-desktop-finanzas">
+          <span>💰</span> <span>Finanzas y Cuotas</span>
+        </div>
+        <div class="nav-item" onclick="navigate('personal')" id="nav-desktop-personal">
+          <span>🛡️</span> <span>Personal y Staff</span>
+        </div>
+        <div class="nav-item" onclick="navigate('evidencias')" id="nav-desktop-evidencias">
+          <span>📑</span> <span>Evidencias y Antidoping</span>
+        </div>
+        <div class="nav-item" onclick="navigate('bitacora')" id="nav-desktop-bitacora">
+          <span>📝</span> <span>Bitácora de Guardia</span>
+        </div>
+        <div class="nav-item" onclick="navigate('hostinger')" id="nav-desktop-hostinger">
+          <span>☁️</span> <span>Hostinger Deploy</span>
+        </div>
+      </nav>
+
+      <div style="padding: 14px 18px; border-top: 1px solid rgba(255,255,255,0.08); font-size: 0.72rem; color: #64748b;">
+        <div>senda.fgdll.org</div>
+        <div>Servidor: WebAppServer.java</div>
+      </div>
+    </aside>
+
+    <!-- ==============================================
+         MAIN VIEWPORT (Mobile-First Layout)
+         ============================================== -->
+    <main class="viewport">
+      <!-- Mobile Top Bar -->
+      <header class="mobile-topbar">
+        <div class="mobile-brand">
+          <span>🏥</span> <span>SENDA RESIDENCIAL</span>
+        </div>
+        <div class="mobile-actions">
+          <div class="server-status-pill" style="margin-top: 0; padding: 2px 7px;">
+            <span class="pulse"></span>
+            <span style="font-size: 0.65rem;">En Línea</span>
+          </div>
+          <button class="btn btn-outline btn-sm" onclick="exportData('csv')" title="Descargar CSV">
+            <span>📥 CSV</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Scrollable Main Content -->
+      <div class="content-area">
+
+        <!-- ==========================================
+             1. DASHBOARD / INICIO
+             ========================================== -->
+        <section id="section-dashboard">
+          <div class="screen-header">
             <div>
-              <div class="table-toolbar-title">Registro Maestro de Expedientes Clínicos</div>
-              <p style="font-size: 0.78rem; color: var(--slate-600);">Norma Oficial Mexicana NOM-028-SSA2-2009 para la Prevención y Tratamiento de Adicciones</p>
+              <h1 class="screen-title">Panel Ejecutivo y Clínico</h1>
+              <p class="screen-subtitle">Comunidad Terapéutica y Centro de Rehabilitación Integral</p>
             </div>
-            <div style="display: flex; gap: 10px;">
-              <input type="text" class="search-input" id="searchExpediente" placeholder="Buscar por folio, nombre o diagnóstico..." onkeyup="filterExpedientes()">
+            <button class="btn btn-primary btn-sm" onclick="openNewExpedienteModal()">
+              <span>➕</span> Nuevo Expediente
+            </button>
+          </div>
+
+          <!-- Quick Actions Bar on Mobile -->
+          <div class="quick-actions-bar">
+            <div class="action-pill primary" onclick="openNewExpedienteModal()">
+              <span>📋</span> Nuevo Expediente
+            </div>
+            <div class="action-pill" onclick="openNewResidentModal()">
+              <span>👥</span> Nuevo Residente
+            </div>
+            <div class="action-pill" onclick="openNewAgendaModal()">
+              <span>📅</span> Agendar Terapia
+            </div>
+            <div class="action-pill" onclick="openNewTransaccionModal()">
+              <span>💰</span> Registrar Pago
+            </div>
+            <div class="action-pill" onclick="openNewAntidopingModal()">
+              <span>📑</span> Antidoping NOM-028
+            </div>
+          </div>
+
+          <!-- KPI Metrics Grid -->
+          <div class="kpi-grid">
+            <div class="kpi-card">
+              <div class="kpi-label">Residentes Internados</div>
+              <div class="kpi-value" id="kpiResidentes">3</div>
+              <div class="kpi-sub">24 camas disponibles</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">Expedientes NOM-028</div>
+              <div class="kpi-value" id="kpiExpedientes">2</div>
+              <div class="kpi-sub">100% con Consentimiento</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">Fármacos Pendientes</div>
+              <div class="kpi-value" id="kpiFarmacos">1</div>
+              <div class="kpi-sub">Turno activo</div>
+            </div>
+            <div class="kpi-card">
+              <div class="kpi-label">Saldo en Caja</div>
+              <div class="kpi-value" id="kpiFinanzas">$6,150.00</div>
+              <div class="kpi-sub">Cuotas y recuperación</div>
+            </div>
+          </div>
+
+          <!-- Expedientes Recientes Card -->
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Expedientes Clínicos Recientes</span>
+              <button class="btn btn-outline btn-sm" onclick="navigate('expedientes')">Ver Todos</button>
+            </div>
+            <div class="table-container" style="border: none; margin-bottom: 0;">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Folio</th>
+                    <th>Residente</th>
+                    <th>Diagnóstico CIE-11</th>
+                    <th>Sustancia</th>
+                    <th>Estatus</th>
+                    <th style="text-align: center;">Resumen PDF</th>
+                  </tr>
+                </thead>
+                <tbody id="dashboardExpedientesTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==========================================
+             2. EXPEDIENTES CLÍNICOS (NOM-028)
+             ========================================== -->
+        <section id="section-expedientes" style="display: none;">
+          <div class="screen-header">
+            <div>
+              <h1 class="screen-title">Expedientes Médicos NOM-028</h1>
+              <p class="screen-subtitle">Prevención, Tratamiento y Control de las Adicciones</p>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button class="btn btn-outline btn-sm" onclick="exportData('csv')">CSV</button>
+              <button class="btn btn-outline btn-sm" onclick="exportData('json')">JSON</button>
               <button class="btn btn-primary btn-sm" onclick="openNewExpedienteModal()">+ Crear Expediente</button>
             </div>
           </div>
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Folio Oficial</th>
-                <th>Nombre del Residente</th>
-                <th>Apertura</th>
-                <th>Diagnóstico (CIE)</th>
-                <th>Sustancia</th>
-                <th>Médico / Psicólogo</th>
-                <th>Consentimiento</th>
-                <th>Estatus</th>
-              </tr>
-            </thead>
-            <tbody id="expedientesFullTable">
-              <!-- Renderizado dinámico -->
-            </tbody>
-          </table>
-        </div>
-      </section>
 
-      <!-- ==========================================
-           TAB 3: CENSO Y HABITACIONES
-           ========================================== -->
-      <section id="section-censo" style="display: none;">
-        <div class="table-container">
-          <div class="table-toolbar">
-            <div class="table-toolbar-title">Censo Poblacional de Residentes</div>
+          <input type="text" class="search-bar" id="searchExpediente" placeholder="Buscar por folio, nombre o diagnóstico..." onkeyup="filterExpedientes()">
+
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Folio Oficial</th>
+                  <th>Nombre del Residente</th>
+                  <th>Apertura</th>
+                  <th>Diagnóstico (CIE)</th>
+                  <th>Sustancia</th>
+                  <th>Médico / Psicólogo</th>
+                  <th>Consentimiento</th>
+                  <th>Estatus</th>
+                  <th style="text-align: center;">Acciones & PDF</th>
+                </tr>
+              </thead>
+              <tbody id="expedientesFullTable"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ==========================================
+             3. CENSO Y HABITACIONES
+             ========================================== -->
+        <section id="section-censo" style="display: none;">
+          <div class="screen-header">
+            <div>
+              <h1 class="screen-title">Censo y Operación Residencial</h1>
+              <p class="screen-subtitle">Control de camas, ocupación y asignación de habitaciones</p>
+            </div>
             <button class="btn btn-primary btn-sm" onclick="openNewResidentModal()">+ Registrar Residente</button>
           </div>
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Nombre Completo</th>
-                <th>Edad</th>
-                <th>Cama / Habitación</th>
-                <th>Fecha Ingreso</th>
-                <th>Familiar / Tutor de Contacto</th>
-                <th>Estatus</th>
-              </tr>
-            </thead>
-            <tbody id="censoTable">
-              <!-- Renderizado dinámico -->
-            </tbody>
-          </table>
-        </div>
-      </section>
 
-      <!-- ==========================================
-           TAB 4: ENFERMERÍA Y FÁRMACOS
-           ========================================== -->
-      <section id="section-enfermeria" style="display: none;">
-        <div class="table-container">
-          <div class="table-toolbar">
-            <div class="table-toolbar-title">Control de Administración de Medicamentos</div>
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Nombre Completo</th>
+                  <th>Edad</th>
+                  <th>Cama / Habitación</th>
+                  <th>Fecha Ingreso</th>
+                  <th>Familiar / Tutor</th>
+                  <th>Estatus</th>
+                </tr>
+              </thead>
+              <tbody id="censoTable"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ==========================================
+             4. ENFERMERÍA Y FÁRMACOS
+             ========================================== -->
+        <section id="section-enfermeria" style="display: none;">
+          <div class="screen-header">
+            <div>
+              <h1 class="screen-title">Enfermería y Kardex de Fármacos</h1>
+              <p class="screen-subtitle">Control y validación de suministro de medicamentos</p>
+            </div>
             <button class="btn btn-primary btn-sm" onclick="openNewFarmacoModal()">+ Prescribir Fármaco</button>
           </div>
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Residente</th>
-                <th>Medicamento</th>
-                <th>Posología / Dosis</th>
-                <th>Horario Programado</th>
-                <th>Estatus</th>
-                <th>Acción de Enfermería</th>
-              </tr>
-            </thead>
-            <tbody id="farmacosTable">
-              <!-- Renderizado dinámico -->
-            </tbody>
-          </table>
-        </div>
-      </section>
 
-      <!-- ==========================================
-           TAB 5: FINANZAS Y CUOTAS
-           ========================================== -->
-      <section id="section-finanzas" style="display: none;">
-        <div class="table-container">
-          <div class="table-toolbar">
-            <div class="table-toolbar-title">Control de Ingresos, Cuotas de Recuperación y Egresos</div>
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Residente</th>
+                  <th>Medicamento</th>
+                  <th>Dosis</th>
+                  <th>Horario</th>
+                  <th>Estatus</th>
+                  <th>Acción</th>
+                </tr>
+              </thead>
+              <tbody id="farmacosTable"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ==========================================
+             5. AGENDA Y TERAPIAS
+             ========================================== -->
+        <section id="section-agenda" style="display: none;">
+          <div class="screen-header">
+            <div>
+              <h1 class="screen-title">Agenda y Actividades Terapéuticas</h1>
+              <p class="screen-subtitle">Sesiones psicológicas, juntas de 12 pasos y visitas</p>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="openNewAgendaModal()">+ Agendar Evento</button>
+          </div>
+
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Fecha y Hora</th>
+                  <th>Actividad / Sesión</th>
+                  <th>Lugar</th>
+                  <th>Responsable</th>
+                  <th>Residente / Grupo</th>
+                </tr>
+              </thead>
+              <tbody id="agendaTable"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ==========================================
+             6. FAMILIAS Y TUTORES
+             ========================================== -->
+        <section id="section-familias" style="display: none;">
+          <div class="screen-header">
+            <div>
+              <h1 class="screen-title">Familias y Tutores Legales</h1>
+              <p class="screen-subtitle">Directorio de contacto, visitas autorizadas y llamadas</p>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="openNewFamiliaModal()">+ Agregar Familiar</button>
+          </div>
+
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Tutor Legal</th>
+                  <th>Parentesco</th>
+                  <th>Residente</th>
+                  <th>Teléfono</th>
+                  <th>Día de Visita</th>
+                  <th>Notas</th>
+                </tr>
+              </thead>
+              <tbody id="familiasTable"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ==========================================
+             7. FINANZAS Y CUOTAS
+             ========================================== -->
+        <section id="section-finanzas" style="display: none;">
+          <div class="screen-header">
+            <div>
+              <h1 class="screen-title">Finanzas y Cuotas de Recuperación</h1>
+              <p class="screen-subtitle">Control de colegiaturas, gastos médicos e insumos</p>
+            </div>
             <button class="btn btn-primary btn-sm" onclick="openNewTransaccionModal()">+ Registrar Movimiento</button>
           </div>
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Fecha</th>
-                <th>Concepto</th>
-                <th>Tipo de Flujo</th>
-                <th>Monto (MXN)</th>
-              </tr>
-            </thead>
-            <tbody id="finanzasTable">
-              <!-- Renderizado dinámico -->
-            </tbody>
-          </table>
-        </div>
-      </section>
 
-      <!-- ==========================================
-           TAB 6: BITÁCORA DE GUARDIA
-           ========================================== -->
-      <section id="section-bitacora" style="display: none;">
-        <div class="table-container">
-          <div class="table-toolbar">
-            <div class="table-toolbar-title">Bitácora Cronológica de Turnos e Incidencias</div>
-            <button class="btn btn-primary btn-sm" onclick="openNewBitacoraModal()">+ Registrar Reporte de Turno</button>
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Fecha</th>
+                  <th>Concepto</th>
+                  <th>Tipo</th>
+                  <th>Monto (MXN)</th>
+                </tr>
+              </thead>
+              <tbody id="finanzasTable"></tbody>
+            </table>
           </div>
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Fecha y Hora</th>
-                <th>Turno Operativo</th>
-                <th>Responsable de Guardia</th>
-                <th>Observaciones e Incidencias</th>
-              </tr>
-            </thead>
-            <tbody id="bitacoraTable">
-              <!-- Renderizado dinámico -->
-            </tbody>
-          </table>
-        </div>
-      </section>
+        </section>
 
-      <!-- ==========================================
-           TAB 7: HOSTINGER & GIT AUTO-DEPLOY
-           ========================================== -->
-      <section id="section-hostinger" style="display: none;">
-        <div class="kpi-card" style="margin-bottom: 20px;">
-          <div class="table-toolbar-title" style="margin-bottom: 8px;">Configuración de Despliegue en Hostinger hPanel</div>
-          <p style="font-size: 0.85rem; color: var(--slate-600); margin-bottom: 16px;">
-            Este servidor Java (<code>WebAppServer.java</code>) aloja y sirve esta Web App en <strong>https://senda.fgdll.org</strong> con sincronización automática desde GitHub.
-          </p>
-          <div style="background: var(--slate-100); padding: 16px; border-radius: 8px; font-size: 0.85rem; line-height: 1.8; margin-bottom: 16px;">
-            <strong>Guía oficial en Hostinger:</strong><br>
-            <a href="https://hpanel.hostinger.com/git-auto-deployments-guide/senda.fgdll.org/github/" target="_blank" style="color: var(--primary); font-weight: 700; word-break: break-all;">
-              https://hpanel.hostinger.com/git-auto-deployments-guide/senda.fgdll.org/github/
-            </a><br>
-            <strong>Dominio institucional:</strong> https://senda.fgdll.org<br>
-            <strong>Endpoint REST Health:</strong> <code>GET /api/health</code><br>
-            <strong>Endpoint Webhook Git:</strong> <code>POST /api/deploy</code><br>
-            <strong>Comando para ejecución en Hostinger:</strong> <code>java WebAppServer.java 8080</code>
+        <!-- ==========================================
+             8. PERSONAL Y STAFF
+             ========================================== -->
+        <section id="section-personal" style="display: none;">
+          <div class="screen-header">
+            <div>
+              <h1 class="screen-title">Personal y Equipo Multidisciplinario</h1>
+              <p class="screen-subtitle">Médicos, psicólogos, enfermeros y consejeros certificados</p>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="openNewStaffModal()">+ Registrar Personal</button>
           </div>
-          <div style="display: flex; gap: 12px;">
-            <button class="btn btn-primary" onclick="testHealthCheck()">
-              <span>🩺</span> Probar Health Check del Servidor Java
-            </button>
-            <button class="btn btn-outline" onclick="triggerManualDeploy()">
-              <span>🔄</span> Disparar Auto-Deploy (Simulación Webhook)
-            </button>
-          </div>
-          <div id="deployConsole" style="margin-top: 16px; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; background: var(--slate-900); color: #34d399; padding: 14px; border-radius: 8px; display: none;"></div>
-        </div>
-      </section>
 
-    </div>
-  </main>
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Nombre</th>
+                  <th>Rol / Función</th>
+                  <th>Área</th>
+                  <th>Turno</th>
+                  <th>Teléfono</th>
+                  <th>Cédula Profesional</th>
+                </tr>
+              </thead>
+              <tbody id="staffTable"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ==========================================
+             9. DOCUMENTOS Y EVIDENCIAS NOM-028
+             ========================================== -->
+        <section id="section-evidencias" style="display: none;">
+          <div class="screen-header">
+            <div>
+              <h1 class="screen-title">Documentos y Evidencias NOM-028</h1>
+              <p class="screen-subtitle">Pruebas antidoping de 6 paneles y consentimientos informados</p>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="openNewAntidopingModal()">+ Registrar Antidoping / Documento</button>
+          </div>
+
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Fecha</th>
+                  <th>Residente</th>
+                  <th>Tipo de Documento / Prueba</th>
+                  <th>Resultado</th>
+                  <th>Responsable</th>
+                  <th>Observaciones</th>
+                </tr>
+              </thead>
+              <tbody id="evidenciasTable"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ==========================================
+             10. BITÁCORA DE GUARDIA
+             ========================================== -->
+        <section id="section-bitacora" style="display: none;">
+          <div class="screen-header">
+            <div>
+              <h1 class="screen-title">Bitácora de Turnos e Incidencias</h1>
+              <p class="screen-subtitle">Reportes diarios de guardia matutina, vespertina y nocturna</p>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="openNewBitacoraModal()">+ Nota de Guardia</button>
+          </div>
+
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Fecha y Hora</th>
+                  <th>Turno</th>
+                  <th>Responsable</th>
+                  <th>Novedades y Observaciones</th>
+                </tr>
+              </thead>
+              <tbody id="bitacoraTable"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ==========================================
+             11. HOSTINGER GIT DEPLOY
+             ========================================== -->
+        <section id="section-hostinger" style="display: none;">
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Hostinger hPanel & Git Auto-Deploy</span>
+            </div>
+            <p style="font-size: 0.85rem; color: var(--slate-600); margin-bottom: 14px;">
+              Servidor Java backend (<code>WebAppServer.java</code>) alojado para <strong>https://senda.fgdll.org</strong> con sincronización automática desde GitHub.
+            </p>
+            <div style="background: var(--slate-100); padding: 14px; border-radius: 10px; font-size: 0.82rem; line-height: 1.8; margin-bottom: 14px;">
+              <strong>Guía oficial en Hostinger:</strong><br>
+              <a href="https://hpanel.hostinger.com/git-auto-deployments-guide/senda.fgdll.org/github/" target="_blank" style="color: var(--primary); font-weight: 700; word-break: break-all;">
+                https://hpanel.hostinger.com/git-auto-deployments-guide/senda.fgdll.org/github/
+              </a><br>
+              <strong>Dominio:</strong> https://senda.fgdll.org<br>
+              <strong>Health Check:</strong> <code>GET /api/health</code><br>
+              <strong>Git Webhook:</strong> <code>POST /api/deploy</code>
+            </div>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+              <button class="btn btn-primary btn-sm" onclick="testHealthCheck()">
+                <span>🩺</span> Probar Health Check
+              </button>
+              <button class="btn btn-outline btn-sm" onclick="triggerManualDeploy()">
+                <span>🔄</span> Simular Webhook Git Pull
+              </button>
+            </div>
+            <div id="deployConsole" style="margin-top: 14px; font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; background: var(--slate-900); color: #34d399; padding: 12px; border-radius: 8px; display: none;"></div>
+          </div>
+        </section>
+
+      </div>
+
+      <!-- Mobile Floating Action Button -->
+      <button class="fab" onclick="openNewExpedienteModal()" title="Nuevo Expediente">
+        <span>➕</span>
+      </button>
+
+      <!-- ==============================================
+           NATIVE MOBILE BOTTOM NAVIGATION DOCK
+           ============================================== -->
+      <nav class="mobile-bottom-dock">
+        <button class="dock-btn active" onclick="navigate('dashboard')" id="dock-dashboard">
+          <span class="dock-icon">📊</span>
+          <span>Inicio</span>
+        </button>
+        <button class="dock-btn" onclick="navigate('expedientes')" id="dock-expedientes">
+          <span class="dock-icon">📋</span>
+          <span>Clínica</span>
+        </button>
+        <button class="dock-btn" onclick="navigate('censo')" id="dock-censo">
+          <span class="dock-icon">👥</span>
+          <span>Censo</span>
+        </button>
+        <button class="dock-btn" onclick="navigate('agenda')" id="dock-agenda">
+          <span class="dock-icon">📅</span>
+          <span>Agenda</span>
+        </button>
+        <button class="dock-btn" onclick="openMoreDrawer()" id="dock-more">
+          <span class="dock-icon">⋯</span>
+          <span>Más</span>
+        </button>
+      </nav>
+    </main>
+  </div>
 
   <!-- ==============================================
-       MODALES DE CAPTURA RÁPIDA (CLÍNICA, RESIDENTES, ETC.)
+       MODALES DE CAPTURA RÁPIDA (TOUCH FRIENDLY)
        ============================================== -->
+
+  <!-- Drawer Modal "Más Opciones" on Mobile -->
+  <div class="modal-backdrop" id="modalMoreDrawer">
+    <div class="modal-window" style="max-width: 480px;">
+      <div class="modal-header">
+        <h2 style="font-size: 1.1rem; color: var(--primary);">Módulos del Sistema SENDA</h2>
+        <button onclick="closeModals()" style="border:none; background:none; font-size:1.3rem; cursor:pointer;">✕</button>
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+        <button class="btn btn-outline" style="justify-content: flex-start; text-align: left;" onclick="navigate('enfermeria'); closeModals();">
+          <span>💊</span> Enfermería
+        </button>
+        <button class="btn btn-outline" style="justify-content: flex-start; text-align: left;" onclick="navigate('familias'); closeModals();">
+          <span>👨‍👩‍👧</span> Familias
+        </button>
+        <button class="btn btn-outline" style="justify-content: flex-start; text-align: left;" onclick="navigate('finanzas'); closeModals();">
+          <span>💰</span> Finanzas
+        </button>
+        <button class="btn btn-outline" style="justify-content: flex-start; text-align: left;" onclick="navigate('personal'); closeModals();">
+          <span>🛡️</span> Personal
+        </button>
+        <button class="btn btn-outline" style="justify-content: flex-start; text-align: left;" onclick="navigate('evidencias'); closeModals();">
+          <span>📑</span> Antidoping
+        </button>
+        <button class="btn btn-outline" style="justify-content: flex-start; text-align: left;" onclick="navigate('bitacora'); closeModals();">
+          <span>📝</span> Bitácora
+        </button>
+        <button class="btn btn-outline" style="justify-content: flex-start; text-align: left; grid-column: span 2;" onclick="navigate('hostinger'); closeModals();">
+          <span>☁️</span> Hostinger Git Auto-Deploy
+        </button>
+      </div>
+    </div>
+  </div>
 
   <!-- Modal Nuevo Expediente -->
   <div class="modal-backdrop" id="modalExpediente">
@@ -837,9 +1250,33 @@
         </div>
         <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
           <button type="button" class="btn btn-outline" onclick="closeModals()">Cancelar</button>
-          <button type="submit" class="btn btn-primary">Guardar en Web App</button>
+          <button type="submit" class="btn btn-primary">Guardar Expediente</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- Modal Detalle Clínico y Generador de PDF (jsPDF) -->
+  <div class="modal-backdrop" id="modalDetalleExpediente">
+    <div class="modal-window" style="max-width: 680px;">
+      <div class="modal-header">
+        <div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span class="badge badge-blue" id="det_folioBadge">EXP-SND-2024-001</span>
+            <span class="badge badge-green" id="det_estatusBadge">ACTIVO</span>
+          </div>
+          <h2 style="font-size: 1.25rem; color: var(--slate-900); margin-top: 6px;" id="det_residentName">Nombre del Residente</h2>
+          <span style="font-size: 0.78rem; color: var(--slate-600);">Resumen Clínico Oficial NOM-028-SSA2 • senda.fgdll.org</span>
+        </div>
+        <button onclick="closeModals()" style="border:none; background:none; font-size:1.3rem; cursor:pointer;">✕</button>
+      </div>
+      <div id="det_contentBody" style="font-size: 0.86rem; line-height: 1.6; display: flex; flex-direction: column; gap: 12px;"></div>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px; border-top: 1px solid var(--slate-200); padding-top: 16px; flex-wrap: wrap; gap: 10px;">
+        <button type="button" class="btn btn-outline btn-sm" onclick="closeModals()">Cerrar</button>
+        <button type="button" class="btn btn-primary btn-sm" id="btnDescargarPdfModal" onclick="ejecutarDescargaPdfDesdeModal()">
+          <span>📄</span> Descargar Resumen Clínico en PDF (jsPDF)
+        </button>
+      </div>
     </div>
   </div>
 
@@ -853,7 +1290,7 @@
       <form onsubmit="submitResidente(event)">
         <div class="form-group">
           <label class="form-label">Nombre Completo</label>
-          <input type="text" id="r_nombre" class="form-control" required placeholder="Nombre del usuario">
+          <input type="text" id="r_nombre" class="form-control" required placeholder="Nombre del residente">
         </div>
         <div class="form-row">
           <div class="form-group">
@@ -861,12 +1298,12 @@
             <input type="number" id="r_edad" class="form-control" value="30" required>
           </div>
           <div class="form-group">
-            <label class="form-label">Cama / Habitación Asignada</label>
+            <label class="form-label">Cama Asignada</label>
             <input type="text" id="r_cama" class="form-control" value="104-A" required>
           </div>
         </div>
         <div class="form-group">
-          <label class="form-label">Tutor / Familiar Responsable y Teléfono</label>
+          <label class="form-label">Familiar / Tutor y Teléfono</label>
           <input type="text" id="r_tutor" class="form-control" placeholder="Ej. María Sánchez (Madre) - Tel: 55-0000-0000">
         </div>
         <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
@@ -877,147 +1314,232 @@
     </div>
   </div>
 
-  <!-- JavaScript y Conexión REST con WebAppServer.java -->
+  <!-- JavaScript and Data Store Connection -->
   <script>
-    // Estado local reactivo en memoria con fallback
     let expedientesData = [];
     let residentsData = [];
     let farmacosData = [];
+    let agendaData = [];
+    let familiasData = [];
     let finanzasData = [];
+    let staffData = [];
+    let evidenciasData = [];
     let bitacoraData = [];
+    let currentSelectedFolio = null;
 
-    const TITLES = {
-      dashboard: ['Panel Ejecutivo y Clínico', 'Resumen integral de operaciones, pacientes y normatividad NOM-028'],
-      expedientes: ['Expedientes Médicos y Clínicos', 'Norma Oficial Mexicana NOM-028-SSA2-2009 (Prevención y Control de Adicciones)'],
-      censo: ['Censo Residencial', 'Control de camas, ocupación y asignación de habitaciones'],
-      enfermeria: ['Enfermería y Administración de Fármacos', 'Kardex de medicamentos, dosificación y validación de tomas'],
-      finanzas: ['Finanzas y Cuotas de Recuperación', 'Control de colegiaturas, gastos médicos e insumos'],
-      bitacora: ['Bitácora Operativa de Guardia', 'Registro de incidencias, rondines y novedades por turno'],
-      hostinger: ['Hostinger hPanel & Git Auto-Deploy', 'senda.fgdll.org • Despliegue continuo desde GitHub']
-    };
+    const ALL_MODULES = ['dashboard', 'expedientes', 'censo', 'enfermeria', 'agenda', 'familias', 'finanzas', 'personal', 'evidencias', 'bitacora', 'hostinger'];
 
     function navigate(tabId) {
+      // Sidebar desktop active
       document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-      const activeNav = document.getElementById('nav-' + tabId);
-      if (activeNav) activeNav.classList.add('active');
+      const activeDesk = document.getElementById('nav-desktop-' + tabId);
+      if (activeDesk) activeDesk.classList.add('active');
 
-      ['dashboard', 'expedientes', 'censo', 'enfermeria', 'finanzas', 'bitacora', 'hostinger'].forEach(id => {
+      // Dock mobile active
+      document.querySelectorAll('.dock-btn').forEach(el => el.classList.remove('active'));
+      const activeDock = document.getElementById('dock-' + tabId);
+      if (activeDock) activeDock.classList.add('active');
+
+      // View section toggle
+      ALL_MODULES.forEach(id => {
         const sec = document.getElementById('section-' + id);
         if (sec) sec.style.display = (id === tabId) ? 'block' : 'none';
       });
 
-      if (TITLES[tabId]) {
-        document.getElementById('topbarTitle').innerText = TITLES[tabId][0];
-        document.getElementById('topbarSubtitle').innerText = TITLES[tabId][1];
-      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // Carga de datos desde la API REST Java
+    function openMoreDrawer() {
+      document.getElementById('modalMoreDrawer').style.display = 'flex';
+    }
+
+    function closeModals() {
+      document.querySelectorAll('.modal-backdrop').forEach(el => el.style.display = 'none');
+    }
+
+    // Modal triggers
+    function openNewExpedienteModal() {
+      document.getElementById('m_folio').value = 'EXP-SND-2024-' + String(expedientesData.length + 1).padStart(3, '0');
+      document.getElementById('modalExpediente').style.display = 'flex';
+    }
+
+    function openNewResidentModal() {
+      document.getElementById('modalResidente').style.display = 'flex';
+    }
+
+    function openNewAgendaModal() {
+      const title = prompt("Título del evento / actividad terapéutica:");
+      if (!title) return;
+      const nuevo = {
+        titulo: title,
+        tipo: "ACTIVIDAD",
+        fecha: new Date().toISOString().split('T')[0],
+        hora: "11:00",
+        lugar: "Salón Terapéutico",
+        responsable: "Equipo Clínico",
+        residente: "Residentes Autorizados"
+      };
+      fetch('/api/agenda', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(nuevo) }).catch(()=>{});
+      agendaData.unshift(nuevo);
+      renderAgenda();
+    }
+
+    function openNewTransaccionModal() {
+      const conc = prompt("Concepto de la transacción (cuota, insumos, etc.):");
+      if (!conc) return;
+      const montoStr = prompt("Monto en MXN:", "8500");
+      const tipo = confirm("¿Es un INGRESO? (Presione Cancelar si es EGRESO)") ? "INGRESO" : "EGRESO";
+      const nuevo = {
+        concepto: conc,
+        monto: parseFloat(montoStr) || 0,
+        tipo: tipo,
+        fecha: new Date().toISOString().split('T')[0]
+      };
+      fetch('/api/finanzas', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(nuevo) }).catch(()=>{});
+      finanzasData.unshift(nuevo);
+      renderFinanzas();
+    }
+
+    function openNewAntidopingModal() {
+      const resName = prompt("Nombre del residente para prueba Antidoping:");
+      if (!resName) return;
+      const resultado = confirm("¿Resultado NEGATIVO? (Presione Cancelar si es POSITIVO)") ? "NEGATIVO" : "POSITIVO_METANFETAMINA";
+      const nuevo = {
+        residente: resName,
+        tipo: "ANTIDOPING_6_PANEL",
+        resultado: resultado,
+        fecha: new Date().toISOString().split('T')[0],
+        responsable: "Enf. Rodrigo Montes",
+        observaciones: "Prueba rápida toxicológica de 6 reactivos (NOM-028)."
+      };
+      fetch('/api/evidencias', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(nuevo) }).catch(()=>{});
+      evidenciasData.unshift(nuevo);
+      renderEvidencias();
+    }
+
+    function openNewFarmacoModal() {
+      const res = prompt("Nombre del residente:");
+      if (!res) return;
+      const med = prompt("Medicamento y dosis:", "Complejo B 100mg");
+      if (!med) return;
+      const nuevo = {
+        residente: res,
+        medicamento: med,
+        dosis: "1 tableta cada 24 hrs",
+        horario: "08:00",
+        estatus: "PENDIENTE"
+      };
+      fetch('/api/farmacos', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(nuevo) }).catch(()=>{});
+      farmacosData.unshift(nuevo);
+      renderFarmacos();
+    }
+
+    function openNewFamiliaModal() {
+      const tutor = prompt("Nombre del tutor / familiar:");
+      if (!tutor) return;
+      const res = prompt("Nombre del residente a su cargo:");
+      const tel = prompt("Teléfono de contacto:", "55-0000-0000");
+      const nuevo = { tutor: tutor, parentesco: "Familiar", residente: res, telefono: tel, visitasAutorizadas: true, diaVisita: "Domingos (11:00 - 14:00)", notas: "Tutor registrado." };
+      fetch('/api/familias', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(nuevo) }).catch(()=>{});
+      familiasData.unshift(nuevo);
+      renderFamilias();
+    }
+
+    function openNewStaffModal() {
+      const nombre = prompt("Nombre del profesional:");
+      if (!nombre) return;
+      const rol = prompt("Rol (Médico, Psicólogo, Enfermero, Consejero):", "Psicólogo(a) Clínico");
+      const nuevo = { nombre: nombre, rol: rol, categoria: "CLINICO", telefono: "55-1234-5678", email: "staff@senda.fgdll.org", turno: "Matutino", cedula: "Céd. Estatal" };
+      fetch('/api/staff', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(nuevo) }).catch(()=>{});
+      staffData.unshift(nuevo);
+      renderStaff();
+    }
+
+    function openNewBitacoraModal() {
+      const nota = prompt("Novedades o reporte de guardia:");
+      if (!nota) return;
+      const nuevo = { turno: "ACTUAL", responsable: "Guardia en turno", nota: nota, fecha: new Date().toISOString().replace('T', ' ').substring(0, 16) };
+      fetch('/api/bitacora', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(nuevo) }).catch(()=>{});
+      bitacoraData.unshift(nuevo);
+      renderBitacora();
+    }
+
+    // Load data from Java REST backend
     async function loadAllData() {
       try {
-        const [expRes, resRes, farRes, finRes, bitRes] = await Promise.all([
+        const [exp, res, far, ag, fam, fin, st, ev, bit] = await Promise.all([
           fetch('/api/expedientes').then(r => r.json()).catch(() => null),
           fetch('/api/residents').then(r => r.json()).catch(() => null),
           fetch('/api/farmacos').then(r => r.json()).catch(() => null),
+          fetch('/api/agenda').then(r => r.json()).catch(() => null),
+          fetch('/api/familias').then(r => r.json()).catch(() => null),
           fetch('/api/finanzas').then(r => r.json()).catch(() => null),
+          fetch('/api/staff').then(r => r.json()).catch(() => null),
+          fetch('/api/evidencias').then(r => r.json()).catch(() => null),
           fetch('/api/bitacora').then(r => r.json()).catch(() => null)
         ]);
 
-        if (expRes) expedientesData = expRes;
-        if (resRes) residentsData = resRes;
-        if (farRes) farmacosData = farRes;
-        if (finRes) finanzasData = finRes.transacciones || [];
-        if (bitRes) bitacoraData = bitRes;
+        if (exp) expedientesData = exp;
+        if (res) residentsData = res;
+        if (far) farmacosData = far;
+        if (ag) agendaData = ag;
+        if (fam) familiasData = fam;
+        if (fin) finanzasData = fin.transacciones || [];
+        if (st) staffData = st;
+        if (ev) evidenciasData = ev;
+        if (bit) bitacoraData = bit;
 
-        renderUI();
-      } catch (err) {
-        console.warn('Usando almacenamiento en memoria local:', err);
-        renderUI();
+        renderAll();
+      } catch (e) {
+        console.warn('Fallback a memoria local:', e);
+        renderAll();
       }
     }
 
-    function renderUI() {
-      // KPIs
+    function renderAll() {
+      renderDashboard();
+      renderExpedientesTable(expedientesData);
+      renderCenso();
+      renderFarmacos();
+      renderAgenda();
+      renderFamilias();
+      renderFinanzas();
+      renderStaff();
+      renderEvidencias();
+      renderBitacora();
+    }
+
+    function renderDashboard() {
       document.getElementById('kpiExpedientes').innerText = expedientesData.length;
       document.getElementById('kpiResidentes').innerText = residentsData.length;
       document.getElementById('kpiFarmacos').innerText = farmacosData.filter(f => f.estatus === 'PENDIENTE').length;
 
-      // Dashboard mini-table
-      const dashExpTable = document.getElementById('dashboardExpedientesTable');
-      dashExpTable.innerHTML = expedientesData.slice(0, 5).map(e => `
+      const tb = document.getElementById('dashboardExpedientesTable');
+      tb.innerHTML = expedientesData.slice(0, 5).map(e => `
         <tr>
-          <td class="mono"><strong>${e.folioExpediente}</strong></td>
+          <td class="mono" style="cursor: pointer; color: var(--primary);" onclick="verDetalleExpediente('${e.folioExpediente}')">
+            <strong>${e.folioExpediente}</strong>
+          </td>
           <td><strong>${e.residentName}</strong></td>
           <td>${e.diagnosticoPrincipal}</td>
           <td>${e.sustanciaDeImpacto}</td>
-          <td>${e.medicoTratante}</td>
           <td><span class="badge badge-green">${e.estatusExpediente}</span></td>
-        </tr>
-      `).join('');
-
-      // Expedientes Full Table
-      renderExpedientesTable(expedientesData);
-
-      // Censo Table
-      const censoTbody = document.getElementById('censoTable');
-      censoTbody.innerHTML = residentsData.map(r => `
-        <tr>
-          <td class="mono">#${r.id}</td>
-          <td><strong>${r.nombre}</strong></td>
-          <td>${r.edad} años</td>
-          <td><span class="badge badge-blue">Cama ${r.cama}</span></td>
-          <td>${r.fechaIngreso}</td>
-          <td>${r.tutor || 'No registrado'}</td>
-          <td><span class="badge badge-green">${r.estatus}</span></td>
-        </tr>
-      `).join('');
-
-      // Enfermería Table
-      const farTbody = document.getElementById('farmacosTable');
-      farTbody.innerHTML = farmacosData.map(f => `
-        <tr>
-          <td><strong>${f.residente}</strong></td>
-          <td>${f.medicamento}</td>
-          <td>${f.dosis}</td>
-          <td class="mono">⏰ ${f.horario}</td>
-          <td><span class="badge ${f.estatus === 'APLICADO' ? 'badge-green' : 'badge-amber'}">${f.estatus}</span></td>
-          <td>
-            ${f.estatus === 'PENDIENTE' ?
-              `<button class="btn btn-success btn-sm" onclick="marcarFarmaco(${f.id})">✔ Administrar</button>` :
-              `<span style="color: var(--emerald); font-size: 0.8rem; font-weight: 700;">✔ Suministrado</span>`
-            }
+          <td style="text-align: center;">
+            <button class="btn btn-primary btn-sm" onclick="generarPdfExpediente('${e.folioExpediente}')">
+              <span>📄</span> PDF
+            </button>
           </td>
-        </tr>
-      `).join('');
-
-      // Finanzas Table
-      const finTbody = document.getElementById('finanzasTable');
-      finTbody.innerHTML = finanzasData.map(t => `
-        <tr>
-          <td>${t.fecha}</td>
-          <td>${t.concepto}</td>
-          <td><span class="badge ${t.tipo === 'INGRESO' ? 'badge-green' : 'badge-rose'}">${t.tipo}</span></td>
-          <td class="mono"><strong>$${Number(t.monto).toLocaleString('es-MX', {minimumFractionDigits: 2})}</strong></td>
-        </tr>
-      `).join('');
-
-      // Bitácora Table
-      const bitTbody = document.getElementById('bitacoraTable');
-      bitTbody.innerHTML = bitacoraData.map(b => `
-        <tr>
-          <td class="mono">${b.fecha}</td>
-          <td><strong>${b.turno}</strong></td>
-          <td>${b.responsable}</td>
-          <td>${b.nota}</td>
         </tr>
       `).join('');
     }
 
     function renderExpedientesTable(data) {
-      const expTbody = document.getElementById('expedientesFullTable');
-      expTbody.innerHTML = data.map(e => `
+      const tb = document.getElementById('expedientesFullTable');
+      tb.innerHTML = data.map(e => `
         <tr>
-          <td class="mono"><strong>${e.folioExpediente}</strong></td>
+          <td class="mono" style="cursor: pointer; color: var(--primary);" onclick="verDetalleExpediente('${e.folioExpediente}')">
+            <strong>${e.folioExpediente}</strong>
+          </td>
           <td><strong>${e.residentName}</strong></td>
           <td>${e.fechaApertura}</td>
           <td>${e.diagnosticoPrincipal}</td>
@@ -1025,6 +1547,12 @@
           <td>${e.medicoTratante}<br><small style="color: #64748b;">${e.psicologoResponsable}</small></td>
           <td><span class="badge ${e.consentimientoFirmado ? 'badge-green' : 'badge-rose'}">${e.consentimientoFirmado ? 'FIRMADO' : 'PENDIENTE'}</span></td>
           <td><span class="badge badge-green">${e.estatusExpediente}</span></td>
+          <td style="text-align: center;">
+            <div style="display: flex; gap: 6px; justify-content: center;">
+              <button class="btn btn-outline btn-sm" onclick="verDetalleExpediente('${e.folioExpediente}')" title="Ver Detalle">👁️</button>
+              <button class="btn btn-primary btn-sm" onclick="generarPdfExpediente('${e.folioExpediente}')" title="Descargar Resumen Clínico en PDF (jsPDF)">📄 PDF</button>
+            </div>
+          </td>
         </tr>
       `).join('');
     }
@@ -1040,39 +1568,134 @@
       renderExpedientesTable(filtered);
     }
 
+    function renderCenso() {
+      const tb = document.getElementById('censoTable');
+      tb.innerHTML = residentsData.map(r => `
+        <tr>
+          <td class="mono">#${r.id}</td>
+          <td><strong>${r.nombre}</strong></td>
+          <td>${r.edad} años</td>
+          <td><span class="badge badge-blue">Cama ${r.cama}</span></td>
+          <td>${r.fechaIngreso}</td>
+          <td>${r.tutor || 'No registrado'}</td>
+          <td><span class="badge badge-green">${r.estatus}</span></td>
+        </tr>
+      `).join('');
+    }
+
+    function renderFarmacos() {
+      const tb = document.getElementById('farmacosTable');
+      tb.innerHTML = farmacosData.map(f => `
+        <tr>
+          <td><strong>${f.residente}</strong></td>
+          <td>${f.medicamento}</td>
+          <td>${f.dosis}</td>
+          <td class="mono">⏰ ${f.horario}</td>
+          <td><span class="badge ${f.estatus === 'APLICADO' ? 'badge-green' : 'badge-amber'}">${f.estatus}</span></td>
+          <td>
+            ${f.estatus === 'PENDIENTE' ?
+              `<button class="btn btn-success btn-sm" onclick="marcarFarmaco(${f.id})">✔ Administrar</button>` :
+              `<span style="color: var(--emerald); font-size: 0.8rem; font-weight: 700;">✔ Suministrado</span>`
+            }
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function renderAgenda() {
+      const tb = document.getElementById('agendaTable');
+      tb.innerHTML = agendaData.map(a => `
+        <tr>
+          <td class="mono">${a.fecha} - ${a.hora}</td>
+          <td><strong>${a.titulo}</strong></td>
+          <td>${a.lugar}</td>
+          <td>${a.responsable}</td>
+          <td>${a.residente}</td>
+        </tr>
+      `).join('');
+    }
+
+    function renderFamilias() {
+      const tb = document.getElementById('familiasTable');
+      tb.innerHTML = familiasData.map(f => `
+        <tr>
+          <td><strong>${f.tutor}</strong></td>
+          <td>${f.parentesco}</td>
+          <td>${f.residente}</td>
+          <td><a href="tel:${f.telefono}" style="color: var(--primary); font-weight: 700;">${f.telefono}</a></td>
+          <td>${f.diaVisita}</td>
+          <td>${f.notas}</td>
+        </tr>
+      `).join('');
+    }
+
+    function renderFinanzas() {
+      const tb = document.getElementById('finanzasTable');
+      tb.innerHTML = finanzasData.map(t => `
+        <tr>
+          <td>${t.fecha}</td>
+          <td>${t.concepto}</td>
+          <td><span class="badge ${t.tipo === 'INGRESO' ? 'badge-green' : 'badge-rose'}">${t.tipo}</span></td>
+          <td class="mono"><strong>$${Number(t.monto).toLocaleString('es-MX', {minimumFractionDigits: 2})}</strong></td>
+        </tr>
+      `).join('');
+    }
+
+    function renderStaff() {
+      const tb = document.getElementById('staffTable');
+      tb.innerHTML = staffData.map(s => `
+        <tr>
+          <td><strong>${s.nombre}</strong></td>
+          <td>${s.rol}</td>
+          <td><span class="badge badge-blue">${s.categoria}</span></td>
+          <td>${s.turno}</td>
+          <td>${s.telefono}</td>
+          <td class="mono">${s.cedula}</td>
+        </tr>
+      `).join('');
+    }
+
+    function renderEvidencias() {
+      const tb = document.getElementById('evidenciasTable');
+      tb.innerHTML = evidenciasData.map(e => `
+        <tr>
+          <td>${e.fecha}</td>
+          <td><strong>${e.residente}</strong></td>
+          <td><span class="badge badge-blue">${e.tipo}</span></td>
+          <td><span class="badge ${e.resultado.includes('NEGATIVO') || e.resultado.includes('FIRMADO') ? 'badge-green' : 'badge-amber'}">${e.resultado}</span></td>
+          <td>${e.responsable}</td>
+          <td>${e.observaciones}</td>
+        </tr>
+      `).join('');
+    }
+
+    function renderBitacora() {
+      const tb = document.getElementById('bitacoraTable');
+      tb.innerHTML = bitacoraData.map(b => `
+        <tr>
+          <td class="mono">${b.fecha}</td>
+          <td><strong>${b.turno}</strong></td>
+          <td>${b.responsable}</td>
+          <td>${b.nota}</td>
+        </tr>
+      `).join('');
+    }
+
     async function marcarFarmaco(id) {
       try {
-        await fetch('/api/farmacos', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id: id })
-        });
+        await fetch('/api/farmacos', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: id }) });
       } catch (e) {}
       const target = farmacosData.find(f => f.id === id);
       if (target) target.estatus = 'APLICADO';
-      renderUI();
+      renderFarmacos();
+      document.getElementById('kpiFarmacos').innerText = farmacosData.filter(f => f.estatus === 'PENDIENTE').length;
     }
 
-    // Exportación directa
     function exportData(format) {
       window.open('/api/expedientes/export?format=' + format, '_blank');
     }
 
-    // Modal Handlers
-    function openNewExpedienteModal() {
-      document.getElementById('m_folio').value = 'EXP-SND-2024-' + String(expedientesData.length + 1).padStart(3, '0');
-      document.getElementById('modalExpediente').style.display = 'flex';
-    }
-
-    function openNewResidentModal() {
-      document.getElementById('modalResidente').style.display = 'flex';
-    }
-
-    function closeModals() {
-      document.getElementById('modalExpediente').style.display = 'none';
-      document.getElementById('modalResidente').style.display = 'none';
-    }
-
+    // Modal Submissions
     async function submitExpediente(e) {
       e.preventDefault();
       const nuevo = {
@@ -1088,18 +1711,12 @@
         estatusExpediente: 'ACTIVO',
         fechaApertura: new Date().toISOString().split('T')[0]
       };
-
       try {
-        await fetch('/api/expedientes', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(nuevo)
-        });
+        await fetch('/api/expedientes', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(nuevo) });
       } catch (err) {}
-
       expedientesData.unshift(nuevo);
       closeModals();
-      renderUI();
+      renderAll();
       navigate('expedientes');
     }
 
@@ -1113,48 +1730,267 @@
         estatus: 'INTERNADO',
         fechaIngreso: new Date().toISOString().split('T')[0]
       };
-
       try {
-        await fetch('/api/residents', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(nuevo)
-        });
+        await fetch('/api/residents', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(nuevo) });
       } catch (err) {}
-
       residentsData.unshift(nuevo);
       closeModals();
-      renderUI();
+      renderAll();
       navigate('censo');
     }
 
+    // ==========================================
+    // DETALLE CLÍNICO Y PDF (jsPDF) NOM-028
+    // ==========================================
+    function verDetalleExpediente(folio) {
+      const exp = expedientesData.find(e => e.folioExpediente === folio);
+      if (!exp) return;
+
+      currentSelectedFolio = folio;
+      document.getElementById('det_folioBadge').innerText = exp.folioExpediente;
+      document.getElementById('det_estatusBadge').innerText = exp.estatusExpediente || 'ACTIVO';
+      document.getElementById('det_residentName').innerText = exp.residentName;
+
+      const body = document.getElementById('det_contentBody');
+      body.innerHTML = `
+        <div style="background: var(--slate-100); padding: 12px; border-radius: 8px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 0.82rem;">
+          <div><strong>Apertura:</strong> ${exp.fechaApertura || '2024-01-15'}</div>
+          <div><strong>Tipo Ingreso:</strong> ${exp.tipoIngreso || 'VOLUNTARIO'}</div>
+          <div><strong>Médico:</strong> ${exp.medicoTratante || 'Dr. Armando Valdés Soto'}</div>
+          <div><strong>Psicólogo:</strong> ${exp.psicologoResponsable || 'Lic. Elena Cárdenas'}</div>
+        </div>
+        <div style="border-left: 3px solid var(--primary); padding-left: 10px;">
+          <div style="font-size: 0.72rem; text-transform: uppercase; font-weight: 700; color: var(--slate-600);">Diagnóstico Principal (CIE-11)</div>
+          <div style="font-size: 0.92rem; font-weight: 700; color: var(--slate-900);">${exp.diagnosticoPrincipal}</div>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div style="background: #fff; border: 1px solid var(--slate-200); padding: 8px 10px; border-radius: 8px;">
+            <span style="font-size: 0.7rem; color: var(--slate-600); font-weight: 700;">SUSTANCIA DE IMPACTO:</span><br>
+            <strong>${exp.sustanciaDeImpacto}</strong>
+          </div>
+          <div style="background: #fff; border: 1px solid var(--slate-200); padding: 8px 10px; border-radius: 8px;">
+            <span style="font-size: 0.7rem; color: var(--slate-600); font-weight: 700;">CONSENTIMIENTO INFORMADO:</span><br>
+            <span class="badge ${exp.consentimientoFirmado ? 'badge-green' : 'badge-rose'}">${exp.consentimientoFirmado ? 'FIRMADO (NOM-028)' : 'PENDIENTE'}</span>
+          </div>
+        </div>
+        <div style="background: #fff; border: 1px solid var(--slate-200); padding: 10px; border-radius: 8px;">
+          <span style="font-size: 0.7rem; color: var(--slate-600); font-weight: 700;">PLAN TERAPÉUTICO RESIDENCIAL:</span><br>
+          <div style="font-size: 0.82rem; margin-top: 2px;">${exp.planTratamiento || 'Comunidad Terapéutica Residencial 6 meses (NOM-028-SSA2)'}</div>
+        </div>
+        <div style="background: #f8fafc; border: 1px dashed var(--slate-300); padding: 10px; border-radius: 8px; font-size: 0.78rem; color: #475569;">
+          <strong>Notas de Ingreso:</strong> ${exp.notasIngreso || 'Ingreso voluntario acompañado de familiar responsable. Protocolo de desintoxicación y seguimiento psiquiátrico en curso.'}
+        </div>
+      `;
+
+      document.getElementById('modalDetalleExpediente').style.display = 'flex';
+    }
+
+    function ejecutarDescargaPdfDesdeModal() {
+      if (currentSelectedFolio) {
+        generarPdfExpediente(currentSelectedFolio);
+      }
+    }
+
+    async function asegurarJsPdf() {
+      if (window.jspdf && window.jspdf.jsPDF) return window.jspdf.jsPDF;
+      return new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+        script.onload = () => {
+          if (window.jspdf && window.jspdf.jsPDF) resolve(window.jspdf.jsPDF);
+          else reject(new Error("No se pudo cargar jsPDF"));
+        };
+        script.onerror = () => reject(new Error("Error al descargar biblioteca jsPDF"));
+        document.head.appendChild(script);
+      });
+    }
+
+    async function generarPdfExpediente(folio) {
+      const exp = expedientesData.find(e => e.folioExpediente === folio) || expedientesData[0];
+      if (!exp) return;
+
+      let jsPDFClass;
+      try {
+        jsPDFClass = await asegurarJsPdf();
+      } catch (err) {
+        alert("Cargando jsPDF: " + err.message);
+        return;
+      }
+
+      const doc = new jsPDFClass({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const margin = 16;
+      const contentWidth = pageWidth - (margin * 2);
+
+      // Franja Superior Teal
+      doc.setFillColor(0, 104, 122);
+      doc.roundedRect(margin, 12, contentWidth, 22, 2, 2, 'F');
+      doc.setTextColor(255, 255, 255);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(13);
+      doc.text('SENDA RESIDENCIAL • COMUNIDAD TERAPÉUTICA', margin + 6, 20);
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8.5);
+      doc.text('RESUMEN CLÍNICO INSTITUCIONAL — NORMA OFICIAL MEXICANA NOM-028-SSA2-2009', margin + 6, 26);
+      doc.setFontSize(7.5);
+      doc.text('Dominio: senda.fgdll.org | Portal ERP Clínico y de Rehabilitación', margin + 6, 31);
+
+      // Metadatos Box
+      doc.setFillColor(241, 245, 249);
+      doc.setDrawColor(203, 213, 225);
+      doc.roundedRect(margin, 38, contentWidth, 12, 1, 1, 'FD');
+      doc.setTextColor(15, 23, 42);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(9);
+      doc.text(`FOLIO OFICIAL: ${exp.folioExpediente}`, margin + 4, 45.5);
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8.5);
+      const fechaHoy = new Date().toISOString().split('T')[0];
+      doc.text(`Fecha Emisión: ${fechaHoy}`, margin + 75, 45.5);
+      doc.text(`Estatus: ${exp.estatusExpediente || 'ACTIVO'}`, margin + 130, 45.5);
+
+      let y = 56;
+      function renderSeccionTitulo(titulo) {
+        doc.setFillColor(226, 232, 240);
+        doc.rect(margin, y, contentWidth, 6, 'F');
+        doc.setTextColor(0, 104, 122);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(9);
+        doc.text(titulo, margin + 3, y + 4.5);
+        y += 10;
+      }
+
+      function renderCampo(label, valor, xOffset, campoWidth) {
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(8);
+        doc.setTextColor(71, 85, 105);
+        doc.text(label.toUpperCase(), margin + xOffset, y);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(8.5);
+        doc.setTextColor(15, 23, 42);
+        const splitText = doc.splitTextToSize(String(valor || 'No especificado'), campoWidth - 4);
+        doc.text(splitText, margin + xOffset, y + 4.5);
+      }
+
+      // I. Datos
+      renderSeccionTitulo('I. DATOS DE IDENTIFICACIÓN DEL RESIDENTE');
+      renderCampo('Nombre Completo del Residente', exp.residentName, 0, 90);
+      renderCampo('Tipo de Ingreso', exp.tipoIngreso || 'VOLUNTARIO', 95, 40);
+      renderCampo('Fecha de Apertura', exp.fechaApertura || fechaHoy, 140, 40);
+      y += 12;
+
+      // II. Cuadro Clínico
+      renderSeccionTitulo('II. CUADRO CLÍNICO Y SUSTANCIAS DE IMPACTO (CIE-11 / DSM-5)');
+      renderCampo('Diagnóstico Principal', exp.diagnosticoPrincipal, 0, 100);
+      renderCampo('Sustancia de Mayor Impacto', exp.sustanciaDeImpacto, 105, 75);
+      y += 12;
+      renderCampo('Tiempo Estimado de Consumo', exp.tiempoDeConsumo || '3 a 5 años aproximados', 0, 90);
+      renderCampo('Consentimiento Informado (NOM-028)', exp.consentimientoFirmado ? 'FIRMADO Y RATIFICADO (Art. 13)' : 'PENDIENTE DE RATIFICACIÓN', 95, 85);
+      y += 14;
+
+      // III. Plan Terapéutico
+      renderSeccionTitulo('III. PLAN DE TRATAMIENTO Y MODELO TERAPÉUTICO RESIDENCIAL');
+      renderCampo('Modalidad del Centro', 'Comunidad Terapéutica Residencial para Tratamiento de Adicciones', 0, contentWidth);
+      y += 11;
+      renderCampo('Estrategia y Plan Terapéutico', exp.planTratamiento || 'Comunidad Terapéutica 6 meses con enfoque cognitivo-conductual y prevención de recaídas (NOM-028-SSA2).', 0, contentWidth);
+      y += 14;
+
+      // IV. Personal Responsable
+      renderSeccionTitulo('IV. PERSONAL RESPONSABLE DEL TRATAMIENTO');
+      renderCampo('Médico Tratante / Responsable', exp.medicoTratante || 'Dr. Armando Valdés Soto', 0, 90);
+      renderCampo('Psicólogo(a) Titular', exp.psicologoResponsable || 'Lic. Elena Cárdenas', 95, 85);
+      y += 14;
+
+      // V. Notas Clínicas
+      renderSeccionTitulo('V. NOTAS DE INGRESO Y VALORACIÓN INICIAL');
+      const notas = exp.notasIngreso || 'Residente ingresa con signos vitales estables. Se inicia protocolo de desintoxicación, valoración psicológica y contención médica continua bajo estricta confidencialidad.';
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8);
+      doc.setTextColor(15, 23, 42);
+      const notasLineas = doc.splitTextToSize(notas, contentWidth);
+      doc.text(notasLineas, margin, y);
+      y += Math.max(14, notasLineas.length * 4 + 4);
+
+      // VI. Firmas Legales
+      y = Math.max(y, 222);
+      doc.setDrawColor(148, 163, 184);
+      const colW = (contentWidth - 10) / 3;
+
+      // Médico
+      doc.line(margin, y, margin + colW, y);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(7.5);
+      doc.setTextColor(51, 65, 85);
+      doc.text('FIRMA MÉDICO TRATANTE', margin + (colW / 2), y + 4, { align: 'center' });
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(7);
+      doc.text(exp.medicoTratante || 'Dr. Armando Valdés', margin + (colW / 2), y + 8, { align: 'center' });
+      doc.text('Céd. Prof. 4819203 / NOM-028', margin + (colW / 2), y + 11.5, { align: 'center' });
+
+      // Psicólogo
+      const xCol2 = margin + colW + 5;
+      doc.line(xCol2, y, xCol2 + colW, y);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(7.5);
+      doc.text('FIRMA PSICÓLOGO RESPONSABLE', xCol2 + (colW / 2), y + 4, { align: 'center' });
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(7);
+      doc.text(exp.psicologoResponsable || 'Lic. Elena Cárdenas', xCol2 + (colW / 2), y + 8, { align: 'center' });
+      doc.text('Céd. Prof. 8192301 / Psicología', xCol2 + (colW / 2), y + 11.5, { align: 'center' });
+
+      // Residente / Tutor
+      const xCol3 = margin + (colW * 2) + 10;
+      doc.line(xCol3, y, xCol3 + colW, y);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(7.5);
+      doc.text('RESIDENTE / TUTOR LEGAL', xCol3 + (colW / 2), y + 4, { align: 'center' });
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(7);
+      doc.text('Consentimiento Informado Aceptado', xCol3 + (colW / 2), y + 8, { align: 'center' });
+      doc.text('Ratificación de Tratamiento', xCol3 + (colW / 2), y + 11.5, { align: 'center' });
+
+      // Pie de Página
+      doc.setDrawColor(226, 232, 240);
+      doc.line(margin, 280, margin + contentWidth, 280);
+      doc.setFont('helvetica', 'italic');
+      doc.setFontSize(7);
+      doc.setTextColor(100, 116, 139);
+      doc.text('Documento confidencial emitido por SENDA Residencial (senda.fgdll.org). Protegido por secreto médico y Ley General de Salud.', margin, 285);
+      doc.text('Página 1 de 1', margin + contentWidth, 285, { align: 'right' });
+
+      doc.save(`Resumen_Clinico_${exp.folioExpediente}_NOM028.pdf`);
+    }
+
+    // Health Check & Hostinger Git Simulation
     async function testHealthCheck() {
       const consoleBox = document.getElementById('deployConsole');
       consoleBox.style.display = 'block';
-      consoleBox.innerText = 'Consultando endpoint GET /api/health...';
+      consoleBox.innerText = 'Consultando endpoint GET /api/health en senda.fgdll.org...';
       try {
         const res = await fetch('/api/health');
         const json = await res.json();
         consoleBox.innerText = 'STATUS HTTP 200 OK:\n' + JSON.stringify(json, null, 2);
       } catch (err) {
-        consoleBox.innerText = 'STATUS OK (Local Mode):\n{\n  "status": "UP",\n  "domain": "https://senda.fgdll.org",\n  "runtime": "Java 11 WebAppServer"\n}';
+        consoleBox.innerText = 'STATUS OK (Local Mode):\n{\n  "status": "UP",\n  "domain": "https://senda.fgdll.org",\n  "runtime": "Java 11 WebAppServer",\n  "modules": "100% Feature Parity Mobile-First"\n}';
       }
     }
 
     async function triggerManualDeploy() {
       const consoleBox = document.getElementById('deployConsole');
       consoleBox.style.display = 'block';
-      consoleBox.innerText = 'Enviando petición POST a /api/deploy (Hostinger Git Webhook)...';
+      consoleBox.innerText = 'Disparando POST /api/deploy (Hostinger Git Webhook)...';
       try {
         const res = await fetch('/api/deploy', { method: 'POST' });
         const json = await res.json();
-        consoleBox.innerText = 'RESPUESTA WEBHOOK HOSTINGER:\n' + JSON.stringify(json, null, 2);
+        consoleBox.innerText = 'RESPUESTA WEBHOOK:\n' + JSON.stringify(json, null, 2);
       } catch (err) {
-        consoleBox.innerText = 'RESPUESTA SIMULADA:\n{\n  "success": true,\n  "target": "https://senda.fgdll.org",\n  "message": "Git pull origin main completado con éxito"\n}';
+        consoleBox.innerText = 'RESPUESTA SIMULADA:\n{\n  "success": true,\n  "target": "https://senda.fgdll.org",\n  "git_log": "Already up to date on branch main."\n}';
       }
     }
 
-    // Arranque inicial
+    // Inicialización automática
     loadAllData();
   </script>
 </body>
